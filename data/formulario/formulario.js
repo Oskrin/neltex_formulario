@@ -2,240 +2,167 @@ $(document).on("ready",inicio);
 
 var id_aspiraste = "";
 
+function guardar_formulario() {
+
+    $.ajax({        
+        type: "POST",
+        data: $("#validation-form-2").serialize() +"&"+ $("#validation-form-3").serialize(),                
+        url: "formulario.php",      
+        success: function(data) { 
+            if( data == 0 ) {
+                //$.gritter.add({
+                //  title: 'Información Mensaje',
+                //  text: ' <span class="fa fa-shield"></span>' + ' ' +'Factura Agregada Correctamente <span class="text-succes fa fa-spinner fa-spin"></span>'
+                //      ,
+                // sticky: false,
+                //  time: 1000,                       
+                //});
+            }
+        }
+    }); 
+
+}
 
 function inicio () {
-    // valida si ya existe
-    $("#ruc_ci").keyup(function() {
-        $.ajax({
-            type: "POST",
-            url: "comparar_aspirantes.php",
-            data: "cedula=" + $("#ruc_ci").val(),
-            success: function(data) {
-                var val = data;
-                if (val == 1) {
-                    $("#ruc_ci").val("");
-                    $("#ruc_ci").focus();
-                    alert("Error... El Aspirante ya esta registrado");
-                }else{
-                    var numero = $("#ruc_ci").val();
-                    var suma = 0;      
-                    var residuo = 0;      
-                    var pri = false;      
-                    var pub = false;            
-                    var nat = false;                     
-                    var modulo = 11;
-                    var p1;
-                    var p2;
-                    var p3;
-                    var p4;
-                    var p5;
-                    var p6;
-                    var p7;
-                    var p8;            
-                    var p9; 
-                    var d1  = numero.substr(0,1);         
-                    var d2  = numero.substr(1,1);         
-                    var d3  = numero.substr(2,1);         
-                    var d4  = numero.substr(3,1);         
-                    var d5  = numero.substr(4,1);         
-                    var d6  = numero.substr(5,1);         
-                    var d7  = numero.substr(6,1);         
-                    var d8  = numero.substr(7,1);         
-                    var d9  = numero.substr(8,1);         
-                    var d10 = numero.substr(9,1);  
-
-                    if (d3 < 6){           
-                        nat = true;            
-                        p1 = d1 * 2;
-                        if (p1 >= 10) p1 -= 9;
-                        p2 = d2 * 1;
-                        if (p2 >= 10) p2 -= 9;
-                        p3 = d3 * 2;
-                        if (p3 >= 10) p3 -= 9;
-                        p4 = d4 * 1;
-                        if (p4 >= 10) p4 -= 9;
-                        p5 = d5 * 2;
-                        if (p5 >= 10) p5 -= 9;
-                        p6 = d6 * 1;
-                        if (p6 >= 10) p6 -= 9; 
-                        p7 = d7 * 2;
-                        if (p7 >= 10) p7 -= 9;
-                        p8 = d8 * 1;
-                        if (p8 >= 10) p8 -= 9;
-                        p9 = d9 * 2;
-                        if (p9 >= 10) p9 -= 9;             
-                        modulo = 10;
-                    } else if(d3 == 6){           
-                        pub = true;             
-                        p1 = d1 * 3;
-                        p2 = d2 * 2;
-                        p3 = d3 * 7;
-                        p4 = d4 * 6;
-                        p5 = d5 * 5;
-                        p6 = d6 * 4;
-                        p7 = d7 * 3;
-                        p8 = d8 * 2;            
-                        p9 = 0;            
-                    } else if(d3 == 9) {          
-                        pri = true;                                   
-                        p1 = d1 * 4;
-                        p2 = d2 * 3;
-                        p3 = d3 * 2;
-                        p4 = d4 * 7;
-                        p5 = d5 * 6;
-                        p6 = d6 * 5;
-                        p7 = d7 * 4;
-                        p8 = d8 * 3;
-                        p9 = d9 * 2;            
-                    }
-                
-                    suma = p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9;                
-                    residuo = suma % modulo;                                         
-
-                    var digitoVerificador = residuo==0 ? 0: modulo - residuo; 
-                    ////////////verificamos validacioncedula////////////////////
-                    if (numero.length === 10) {
-                        if(nat == true){
-                            if (digitoVerificador != d10){                          
-                                alert('El número de cédula es incorrecto.');
-                                $("#ruc_ci").val("");
-                            }else{
-                                alert('El número de cédula es correcto.');
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    });
-    // fin
-
-    // carga_idiomas("idioma");
+  $("#btn_0").on("click",guardar_formulario);
 
 
     $('[data-rel=tooltip]').tooltip();
-
-    $('#fecha_nacimiento').datepicker({
-        autoclose: true,
-        format:'yyyy-mm-dd',
-        startView:0     
-    });   
+            
+                var $validation = false;
+                $('#fuelux-wizard-container')
+                .ace_wizard({
+                    //step: 2 //optional argument. wizard will jump to step "2" at first
+                    //buttons: '.wizard-actions:eq(0)'
+                })
+                .on('actionclicked.fu.wizard' , function(e, info){
+                    if(info.step == 1 && $validation) {
+                        if(!$('#validation-form-2').valid()) e.preventDefault();
+                    }
+                })
+                .on('finished.fu.wizard', function(e) {
+                    bootbox.dialog({
+                        message: "Thank you! Your information was successfully saved!", 
+                        buttons: {
+                            "success" : {
+                                "label" : "OK",
+                                "className" : "btn-sm btn-primary"
+                            }
+                        }
+                    });
+                }).on('stepclick.fu.wizard', function(e){
+                    //e.preventDefault();//this will prevent clicking and selecting steps
+                });
+            
+                    
+            
+                $('#validation-form-2').validate({
+                    errorElement: 'div',
+                    errorClass: 'help-block',
+                    focusInvalid: false,
+                    ignore: "",
+                    rules: {
+                        311: {
+                            digits: true
+                            
+                            //required: true,
+                            //email:true
+                        },
+                        password: {
+                            required: true,
+                            minlength: 5
+                        },
+                        password2: {
+                            required: true,
+                            minlength: 5,
+                            equalTo: "#password"
+                        },
+                        name: {
+                            required: true
+                        },
+                        phone: {
+                            required: true,
+                            phone: 'required'
+                        },
+                        url: {
+                            required: true,
+                            url: true
+                        },
+                        comment: {
+                            required: true
+                        },
+                        state: {
+                            required: true
+                        },
+                        platform: {
+                            required: true
+                        },
+                        subscription: {
+                            required: true
+                        },
+                        gender: {
+                            required: true,
+                        },
+                        agree: {
+                            required: true,
+                        }
+                    },
+            
+                    messages: {
+                        email: {
+                            required: "Please provide a valid email.",
+                            email: "Please provide a valid email."
+                        },
+                        password: {
+                            required: "Please specify a password.",
+                            minlength: "Please specify a secure password."
+                        },
+                        state: "Please choose state",
+                        subscription: "Please choose at least one option",
+                        gender: "Please choose gender",
+                        agree: "Please accept our policy"
+                    },
+            
+            
+                    highlight: function (e) {
+                        $(e).closest('.form-group').removeClass('has-info').addClass('has-error');
+                    },
+            
+                    success: function (e) {
+                        $(e).closest('.form-group').removeClass('has-error');//.addClass('has-info');
+                        $(e).remove();
+                    },
+            
+                    errorPlacement: function (error, element) {
+                        if(element.is('input[type=checkbox]') || element.is('input[type=radio]')) {
+                            var controls = element.closest('div[class*="col-"]');
+                            if(controls.find(':checkbox,:radio').length > 1) controls.append(error);
+                            else error.insertAfter(element.nextAll('.lbl:eq(0)').eq(0));
+                        }
+                        else if(element.is('.select2')) {
+                            error.insertAfter(element.siblings('[class*="select2-container"]:eq(0)'));
+                        }
+                        else if(element.is('.chosen-select')) {
+                            error.insertAfter(element.siblings('[class*="chosen-container"]:eq(0)'));
+                        }
+                        else error.insertAfter(element.parent());
+                    },
+            
+                    submitHandler: function (form) {
+                    },
+                    invalidHandler: function (form) {
+                    }
+                });
+                
+                $('#modal-wizard-container').ace_wizard();
+                $('#modal-wizard .wizard-actions .btn[data-dismiss=modal]').removeAttr('disabled');       
+                
+                $(document).one('ajaxloadstart.page', function(e) {
+                    //in ajax mode, remove remaining elements before leaving page
+                    $('[class*=select2]').remove();
+                });
          
-    $(".select2").css('width','200px').select2({allowClear:true})
-    .on('change', function(){
-        $(this).closest('form').validate().element($(this));
-    }); 
-    var $validation = true;
-    $('#fuelux-wizard-container')
-    .ace_wizard({
-        //step: 2 //optional argument. wizard will jump to step "2" at first
-        //buttons: '.wizard-actions:eq(0)'
-    })
-    .on('actionclicked.fu.wizard' , function(e, info){
-        if(info.step == 1 && $validation) {
-            if(!$('#validation-form').valid()) e.preventDefault();
-        }
-    })
-    .on('finished.fu.wizard', function(e) {
-        bootbox.dialog({
-            message: "Thank you! Your information was successfully saved!", 
-            buttons: {
-                "success" : {
-                    "label" : "OK",
-                    "className" : "btn-sm btn-primary"
-                }
-            }
-        });
-    }).on('stepclick.fu.wizard', function(e){
-        //e.preventDefault();//this will prevent clicking and selecting steps
-    });
-
-    $.mask.definitions['~']='[+-]';
-    $('#telefono').mask('(999) 999-999');
-    $('#celular').mask('(99) 9999-9999');
-    $('#fecha_nacimiento').mask('9999-99-99');
-
-    jQuery.validator.addMethod("telefono", function (value, element) {
-        return this.optional(element) || /^\(\d{3}\) \d{3}\-\d{3}( x\d{1,6})?$/.test(value);
-    }, "Ingrese un número válido");
-
-    jQuery.validator.addMethod("celular", function (value, element) {
-        return this.optional(element) || /^\(\d{2}\) \d{4}\-\d{4}( x\d{1,6})?$/.test(value);
-    }, "Ingrese un número válido");
-
-    jQuery.validator.addMethod("fecha_nacimiento", function (value, element) {
-        return this.optional(element) || /^\d{4}\-\d{2}\-\d{2}( x\d{1,6})?$/.test(value);
-    }, "Ingrese un fecha válida");
-
-    // $('#validation-form').validate({
-    //     errorElement: 'div',
-    //     errorClass: 'help-block',
-    //     focusInvalid: false,
-    //     ignore: "",
-    //     rules: {
-           // email: {
-           //      required: true,
-           //      email:true
-           //  },                      
-            // id_aspirante: {
-            //     required: true
-            // },
-            // telefono: {
-            //     required: true,
-            //     telefono: 'required'
-            // },
-        // },
-        // messages: {
-        //     id_aspirante: {
-        //         required: "Seleccione un Aspirante.",                           
-        //     },  
-        //     genero: "Seleccione un género",                                           
-        //     correo: {
-        //         required: "Ingrese un correo válido.",
-        //         email: "Ingrese un correo válido.",
-        //     },  
-        //     pais: {
-        //         required: "Ingrese un país",                
-        //     },                                                 
-        // },
-
-    //     highlight: function (e) {
-    //         $(e).closest('.form-group').removeClass('has-info').addClass('has-error');
-    //     },
-
-    //     success: function (e) {
-    //         $(e).closest('.form-group').removeClass('has-error');//.addClass('has-info');
-    //         $(e).remove();
-    //     },
-
-    //     errorPlacement: function (error, element) {         
-    //         if(element.is('input[type=checkbox]') || element.is('input[type=radio]')) {
-    //             var controls = element.closest('div[class*="col-"]');
-    //             if(controls.find(':checkbox,:radio').length > 1) controls.append(error);
-    //             else error.insertAfter(element.nextAll('.lbl:eq(0)').eq(0));                
-    //         }
-    //         else if(element.is('.select2')) {                
-    //             error.insertAfter(element.parent());
-    //         }
-    //         else if(element.is('.chosen-select')) {
-    //             error.insertAfter(element.siblings('[class*="chosen-container"]:eq(0)'));
-    //         }
-    //         else error.insertAfter(element.parent());
-    //     },
-
-    //     submitHandler: function (form) {
-    //     },
-    //     invalidHandler: function (form) {
-    //     }
-    // });            
-    // $('#modal-wizard-container').ace_wizard();
-    // $('#modal-wizard .wizard-actions .btn[data-dismiss=modal]').removeAttr('disabled');
-     
-    // $(document).one('ajaxloadstart.page', function(e) {
-    //     $('[class*=select2]').remove();
-    // });
-
-    // tabla idiomas
+      // tabla idiomas
     jQuery(function($) {
         var grid_selector = "#table_idioma";
         var pager_selector = "#pager_idioma";
