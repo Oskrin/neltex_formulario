@@ -1,2 +1,16 @@
-<?xml version="2.0" encoding="UTF-8"?>
-<formulario/>
+<?xml version="1.0" encoding="UTF-8"?>
+<formulario>
+  <cabecera>
+    <codigo_version_formulario>01201501</codigo_version_formulario>
+    <ruc>1004358584001</ruc>
+    <codigo_moneda>1</codigo_moneda>
+  </cabecera>
+  <detalle>
+    <campo numero="99"/>
+    <campo numero="31">0</campo>
+    <campo numero="104"/>
+    <campo numero="203"/>
+    <campo numero="201">1004358584001</campo>
+    <campo numero="202">OSCAR TROYA</campo>
+  </detalle>
+</formulario>
