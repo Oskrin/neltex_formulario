@@ -21,11 +21,93 @@ function guardar_formulario() {
             }
         }
     }); 
-
 }
+
+function Valida_punto() {
+    var key;
+    if (window.event) {
+        key = event.keyCode;
+    } else if (event.which) {
+        key = event.which;
+    }
+
+    if (key < 48 || key > 57) {
+        if (key === 46 || key === 8) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    //return true;
+}
+
+function flecha_atras() {
+    $.ajax({
+        type: "POST",
+        url: "flechas.php",
+        data: "comprobante=" + $("#comprobante").val() + "&tabla=" + "formulario_101" + "&id_tabla=" + "id_formualrio101" + "&tipo=" + 1,
+        success: function(data) {
+            var val = data;
+            if(val != "") {
+                $("#comprobante").val(val);
+                var valor = $("#comprobante").val();
+
+                $.getJSON('retornar_factura_venta.php?com=' + valor, function(data) {
+                    var tama = data.length;
+                    if (tama != 0) {
+                        for (var i = 0; i < tama; i = i + 23) {
+                            $("#id_factura_venta").val(data[i]);
+                            $("#fecha_actual").val(data[i + 1]);
+                            $("#hora_actual").val(data[i + 2]);
+                            $("#digitador").val(data[i + 3] + " " + data[i + 4] );
+                            var num = data[i + 5]; 
+                            var res = num.substr(8, 20)
+                            $("#num_factura").val(res);
+                            $("#id_cliente").val(data[i + 6]);
+                            $("#ruc_ci").val(data[i + 7]);
+                            $("#nombre_cliente").val(data[i + 8]);
+                            $("#direccion_cliente").val(data[i + 9]);
+                            $("#telefono_cliente").val(data[i + 10]);
+                            $("#correo").val(data[i + 11]);
+                            $("#autorizacion").val(data[i + 12]);
+                            $("#fecha_auto").val(data[i + 13]);
+                            $("#fecha_caducidad").val(data[i + 14]);
+                            $("#cancelacion").val(data[i + 15]);
+                            $("#tipo_precio").val(data[i + 16]);
+
+                            if(data[i + 17 ] == "Pasivo") {
+                                $("#estado").append($("<h3>").text("Anulada"));
+                                $("#estado h3").css("color","red");
+                                $("#btnAnular").attr("disabled", "disabled");
+                                $("#btnModificar").attr("disabled", true);
+                            } else {
+                                $("#estado h3").remove();
+                                $("#btnAnular").attr("disabled", "disabled");
+                                $("#btnAnular").attr("disabled", false);
+                                $("#btnModificar").attr("disabled", false);
+                            }
+
+                            $("#total_p").val(data[i + 18]);
+                            $("#total_p2").val(data[i + 19]);
+                            $("#sub").val((parseFloat(data[i + 18]) + parseFloat(data[i + 19])).toFixed(3));
+                            $("#iva").val(data[i + 20]);
+                            $("#desc").val(data[i + 21]);
+                            $("#tot").val(data[i + 22]);
+                        }
+                    }
+                });
+            } else {
+                alertify.alert("No hay mas registros posteriores!!");
+            }
+        }
+    });
+} 
+
 
 function inicio () {
   $("#btn_0").on("click",guardar_formulario);
+  //$("#btn_4").on("click", flecha_atras);
+
 
 
     $('[data-rel=tooltip]').tooltip();
@@ -64,7 +146,7 @@ function inicio () {
                     ignore: "",
                     rules: {
                         311: {
-                            digits: true
+                            digits: false
                             
                             //required: true,
                             //email:true
@@ -163,14 +245,15 @@ function inicio () {
                     $('[class*=select2]').remove();
                 });
          
-      // tabla idiomas
-    jQuery(function($) {
-        var grid_selector = "#table_idioma";
-        var pager_selector = "#pager_idioma";
+                jQuery(function($) {
+        var grid_selector = "#table";
+        var pager_selector = "#pager";
         
         //cambiar el tamaño para ajustarse al tamaño de la página
         $(window).on('resize.jqGrid', function () {
-            $(grid_selector).jqGrid( 'setGridWidth', $(".page-content").width() -40);
+            //$(grid_selector).jqGrid( 'setGridWidth', $("#myModal").width());          
+            $(grid_selector).jqGrid( 'setGridWidth', $("#myModal .modal-dialog").width()-30);
+            
         })
         //cambiar el tamaño de la barra lateral collapse/expand
         var parent_column = $(grid_selector).closest('[class*="col-"]');
@@ -183,26 +266,29 @@ function inicio () {
             }
         })
 
-        jQuery(grid_selector).jqGrid({         
-            url: 'xmlIdiomas.php',
+        jQuery(grid_selector).jqGrid({          
             datatype: "xml",
-            height: 250,
-            colNames:['ID','NOMBRE IDIOMA','NIVEL LECTURA','NIVEL ESCRITURA','FECHA CREACIÓN'],
-            colModel:[
-                {name:'id_idioma',index:'id_idioma', width:50, sorttype:"int", editable: true, hidden: true, editoptions: {readonly: 'readonly'}},
-                {name:'nombre_idioma',index:'nombre_idioma', width:150,editable: true,editoptions:{size:"20"}, editrules: {required: true}},                
-                {name:'nivel_lectura',index:'nivel_lectura', width:100,editable: true,editoptions:{size:"20"}, editrules: {required: true},edittype:"select",editoptions:{value:"Básico:Básico;Intermedio:Intermedio;Experto:Experto"}},
-                {name:'nivel_escritura',index:'nivel_escritura', width:100,editable: true,editoptions:{size:"20"}, editrules: {required: true},edittype:"select",editoptions:{value:"Básico:Básico;Intermedio:Intermedio;Experto:Experto"}},
-                {name:'fecha_creacion',index:'fecha_creacion', width:100, editable: true, editoptions:{size:"20",maxlength:"30",readonly: 'readonly'}, editrules: {required: false}},
-            ], 
-            rowNum:10,
-            rowList:[10,20,30],
-            pager : pager_selector,
-            sortname: 'id_idioma',
+            url: 'xml_formulario.php',        
+            colNames: ['ID','AÑO','RUC','EMPRESA','REPRESENTANTE LEGAL','IDENTIFICACIÓN REPRESENTANTE'],
+            colModel:[      
+                {name:'id_formualrio101',index:'id_formualrio101',frozen:true,align:'left',search:false,hidden:true},
+                {name:'anio_contable',index:'anio_contable',frozen : true,align:'left',search:true},
+                {name:'ruc_empresa',index:'ruc_empresa',frozen : true,align:'left',search:true},
+                {name:'nombre_empresa',index:'nombre_empresa',frozen : true,align:'left',search:false},
+                {name:'representante_legal',index:'representante_legal',frozen : true,align:'left',search:false},
+                {name:'identificacion_repre',index:'identificacion_repre',frozen : true,align:'left',search:false}
+            ],          
+            rowNum: 10,       
+            width:600,
+            shrinkToFit: false,
+            height:200,
+            rowList: [10,20,30],
+            pager: pager_selector,        
+            sortname: 'id_formualrio101',
             sortorder: 'asc',
             altRows: true,
             multiselect: false,
-            multiboxonly: false,
+            multiboxonly: true,
             viewrecords : true,
             loadComplete : function() {
                 var table = this;
@@ -213,10 +299,141 @@ function inicio () {
                     enableTooltips(table);
                 }, 0);
             },
+            ondblClickRow: function(rowid) {                                    
+                var gsr = jQuery(grid_selector).jqGrid('getGridParam','selrow');                                              
+                var ret = jQuery(grid_selector).jqGrid('getRowData',gsr);  
+                
+                $("#comprobante").val(ret.id_formualrio101);
+                var valor = ret.id_formualrio101;  
 
-            editurl: 'idiomas.php',
-            caption: "IDIOMAS"
+                /**/
+                $.getJSON('retornar_formulario101.php?com=' + valor, function(data) {
+                    var tama = data.length;
+                    if (tama != 0) {
+                        for (var i = 0; i < tama; i = i + 44) {
+                            $("#311").val(data[i]);
+                            $("#316").val(data[i + 1]);
+                            $("#322").val(data[i + 2]);
+                            $("#323").val(data[i + 3]);
+                            $("#326").val(data[i + 4]);
+                            $("#327").val(data[i + 5]);
+                            $("#328").val(data[i + 6]);
+                            $("#329").val(data[i + 7]);
+                            $("#335").val(data[i + 8]);
+                            $("#345").val(data[i + 9]);
+                            $("#353").val(data[i + 10]);
+                            $("#354").val(data[i + 11]);
+                            $("#356").val(data[i + 12]);
+                            $("#357").val(data[i + 13]);
+                            $("#359").val(data[i + 14]);
+                            $("#360").val(data[i + 15]);
+                            $("#379").val(data[i + 16]);
+                            $("#382").val(data[i + 17]);
+                            $("#389").val(data[i + 18]);
+                            $("#445").val(data[i + 19]);
+                            $("#498").val(data[i + 20]);
+                            $("#499").val(data[i + 21]);
+                            $("#513").val(data[i + 22]);
+                            $("#515").val(data[i + 23]);
+                            $("#517").val(data[i + 24]);
+                            $("#521").val(data[i + 25]);
+                            $("#526").val(data[i + 26]);
+                            $("#527").val(data[i + 27]);
+                            $("#528").val(data[i + 28]);
+                            $("#530").val(data[i + 29]);
+                            $("#534").val(data[i + 30]);
+                            $("#539").val(data[i + 31]);
+                            $("#545").val(data[i + 32]);
+                            $("#551").val(data[i + 33]);
+                            $("#569").val(data[i + 34]);
+                            $("#601").val(data[i + 35]);
+                            $("#621").val(data[i + 36]);
+                            $("#641").val(data[i + 37]);
+                            $("#651").val(data[i + 38]);
+                            $("#652").val(data[i + 39]);
+                            $("#653").val(data[i + 40]);
+                            $("#661").val(data[i + 41]);
+                            $("#698").val(data[i + 42]);
+                            $("#699").val(data[i + 43]);
+                        }
+                    }
+                });
+
+                $.getJSON('retornar_anexos101.php?com=' + valor, function(data) {
+                    var tama = data.length;
+                    if (tama != 0) {
+                        for (var i = 0; i < tama; i = i + 55) {
+                            $("#6011").val(data[i]);
+                            $("#6061").val(data[i + 1]);
+                            $("#6071").val(data[i + 2]);
+                            $("#6999").val(data[i + 3]);
+                            $("#7051").val(data[i + 4]);
+                            $("#7061").val(data[i + 5]);
+                            $("#7071").val(data[i + 6]);
+                            $("#7081").val(data[i + 7]);
+                            $("#7091").val(data[i + 8]);
+                            $("#7101").val(data[i + 9]);
+                            $("#7111").val(data[i + 10]);
+                            $("#7121").val(data[i + 11]);
+                            $("#7131").val(data[i + 12]);
+                            $("#7132").val(data[i + 13]);
+                            $("#7141").val(data[i + 14]);
+                            $("#7142").val(data[i + 15]);
+                            $("#7143").val(data[i + 16]);
+                            $("#7151").val(data[i + 17]);
+                            $("#7152").val(data[i + 18]);
+                            $("#7162").val(data[i + 19]);
+                            $("#7163").val(data[i + 20]);
+                            $("#7191").val(data[i + 21]);
+                            $("#7192").val(data[i + 22]);
+                            $("#7193").val(data[i + 23]);
+                            $("#7201").val(data[i + 24]);
+                            $("#7202").val(data[i + 25]);
+                            $("#7203").val(data[i + 26]);
+                            $("#7212").val(data[i + 27]);
+                            $("#7221").val(data[i + 28]);
+                            $("#7222").val(data[i + 29]);
+                            $("#7223").val(data[i + 30]);
+                            $("#7232").val(data[i + 31]);
+                            $("#7233").val(data[i + 32]);
+                            $("#7342").val(data[i + 33]);
+                            $("#7343").val(data[i + 34]);
+                            $("#7442").val(data[i + 35]);
+                            $("#7462").val(data[i + 36]);
+                            $("#7463").val(data[i + 37]);
+                            $("#7472").val(data[i + 38]);
+                            $("#7473").val(data[i + 39]);
+                            $("#7482").val(data[i + 40]);
+                            $("#7483").val(data[i + 41]);
+                            $("#7511").val(data[i + 42]);
+                            $("#7512").val(data[i + 43]);
+                            $("#7513").val(data[i + 44]);
+                            $("#7571").val(data[i + 45]);
+                            $("#7572").val(data[i + 46]);
+                            $("#7573").val(data[i + 47]);
+                            $("#7581").val(data[i + 48]);
+                            $("#7582").val(data[i + 49]);
+                            $("#7583").val(data[i + 50]);
+                            $("#7592").val(data[i + 51]);
+                            $("#7593").val(data[i + 52]);
+                            $("#7992").val(data[i + 53]);
+                            $("#7999").val(data[i + 54]);
+                        }
+                    }
+                });
+                  
+                /**/
+                $('#myModal').modal('hide');
+                $("#btn_0").text("");
+                $("#btn_0").append("<span class='glyphicon glyphicon-log-in'></span> Modificar");                   
+            },
+            
+            caption: "LISTA FORMULARIOS RETENCIONES"
         });
+
+        jQuery(grid_selector).jqGrid('hideCol', "txt_0");
+        jQuery(grid_selector).jqGrid('hideCol', "txt_11");      
+
         $(window).triggerHandler('resize.jqGrid');//cambiar el tamaño para hacer la rejilla conseguir el tamaño correcto
 
         function aceSwitch( cellvalue, options, cell ) {
@@ -225,21 +442,13 @@ function inicio () {
                 .addClass('ace ace-switch ace-switch-5')
                 .after('<span class="lbl"></span>');
             }, 0);
-        }
-        //enable datepicker
-        function pickDate( cellvalue, options, cell ) {
-            setTimeout(function(){
-                $(cell) .find('input[type=text]')
-                .datepicker({format:'yyyy-mm-dd' , autoclose:true}); 
-            }, 0);
-        }
-
+        }              
         //navButtons
         jQuery(grid_selector).jqGrid('navGrid',pager_selector,
         {   //navbar options
-            edit: true,
+            edit: false,
             editicon : 'ace-icon fa fa-pencil blue',
-            add: true,
+            add: false,
             addicon : 'ace-icon fa fa-plus-circle purple',
             del: false,
             delicon : 'ace-icon fa fa-trash-o red',
@@ -250,67 +459,37 @@ function inicio () {
             view: true,
             viewicon : 'ace-icon fa fa-search-plus grey'
         },
-        {
-            closeAfterEdit: true,
+        {           
             recreateForm: true,
-            viewPagerButtons: false,
-            overlay:false,
             beforeShowForm : function(e) {
                 var form = $(e[0]);
                 form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
                 style_edit_form(form);
-            },
-            // afterSubmit: function (response) {
-            // if(response.responseText == 2) {
-            //         $.gritter.add({
-            //             title: 'Mensaje',
-            //             text: 'Registro Modificado correctamente <i class="ace-icon fa fa-spinner fa-spin green bigger-125"></i>',
-            //             time: 1000              
-            //         });
-            //         return true;
-            //     } else {
-            //         if(response.responseText == 3) { 
-            //             $("#nombre_idioma").val("");
-            //             return [false,"Error.. El idioma ya existe"];
-            //         }   
-            //     }
-            // },
+            }
         },
         {
+            //new record form
+            //width: 700,
             closeAfterAdd: true,
             recreateForm: true,
             viewPagerButtons: false,
-            overlay:false,
             beforeShowForm : function(e) {
                 var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
+                form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar')
+                .wrapInner('<div class="widget-header" />')
                 style_edit_form(form);
-            },
-            // afterSubmit: function (response) {
-            // if(response.responseText == 1) {
-            //         $.gritter.add({
-            //             title: 'Mensaje',
-            //             text: 'Registro Modificado correctamente <i class="ace-icon fa fa-spinner fa-spin green bigger-125"></i>',
-            //             time: 1000              
-            //         });
-            //         return true;
-            //     } else {
-            //         if(response.responseText == 3) { 
-            //             $("#nombre_idioma").val("");
-            //             return [false,"Error.. El idioma ya existe"];
-            //         }   
-            //     }
-            // },
+            }
         },
         {
             //delete record form
             recreateForm: true,
-            overlay:false,
             beforeShowForm : function(e) {
                 var form = $(e[0]);
                 if(form.data('styled')) return false;
+                    
                 form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
                 style_delete_form(form);
+                    
                 form.data('styled', true);
             },
             onClick : function(e) {
@@ -318,9 +497,8 @@ function inicio () {
             }
         },
         {
-              recreateForm: true,
-              overlay:false,
-            afterShowSearch: function(e) {
+            recreateForm: true,
+            afterShowSearch: function(e){
                 var form = $(e[0]);
                 form.closest('.ui-jqdialog').find('.ui-jqdialog-title').wrap('<div class="widget-header" />')
                 style_search_form(form);
@@ -329,21 +507,26 @@ function inicio () {
                 style_search_filters($(this));
             }
             ,
-            multipleSearch: false,
+            //multipleSearch: true
+            overlay: false,
+            sopt: ['eq', 'cn'],
+            defaultSearch: 'eq',                       
           },
         {
             //view record form
             recreateForm: true,
-            overlay:false,
             beforeShowForm: function(e){
                 var form = $(e[0]);
                 form.closest('.ui-jqdialog').find('.ui-jqdialog-title').wrap('<div class="widget-header" />')
             }
-        })
-
+        })      
         function style_edit_form(form) {
+            //enable datepicker on "sdate" field and switches for "stock" field
             form.find('input[name=sdate]').datepicker({format:'yyyy-mm-dd' , autoclose:true})
+            
             form.find('input[name=stock]').addClass('ace ace-switch ace-switch-5').after('<span class="lbl"></span>');
+                    
+            //update buttons classes
             var buttons = form.next().find('.EditButton .fm-button');
             buttons.addClass('btn btn-sm').find('[class*="-icon"]').hide();//ui-icon, s-icon
             buttons.eq(0).addClass('btn-primary').prepend('<i class="ace-icon fa fa-check"></i>');
@@ -368,7 +551,6 @@ function inicio () {
             form.find('.add-group').addClass('btn btn-xs btn-success');
             form.find('.delete-group').addClass('btn btn-xs btn-danger');
         }
-
         function style_search_form(form) {
             var dialog = form.closest('.ui-jqdialog');
             var buttons = dialog.find('.EditTable')
@@ -392,11 +574,18 @@ function inicio () {
             form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
             style_edit_form(form);
         }
+
         function styleCheckbox(table) {
+
         }
+        
+
+        //unlike navButtons icons, action icons in rows seem to be hard-coded
+        //you can change them like this in here if you want
         function updateActionIcons(table) {
         }
-            
+        
+        //replace icons with FontAwesome icons like above
         function updatePagerIcons(table) {
             var replacement = 
                 {
@@ -418,1868 +607,13 @@ function inicio () {
             $(table).find('.ui-pg-div').tooltip({container:'body'});
         }
 
-            //var selr = jQuery(grid_selector).jqGrid('getGridParam','selrow');
+        //var selr = jQuery(grid_selector).jqGrid('getGridParam','selrow');
 
-            $(document).one('ajaxloadstart.page', function(e) {
-                $(grid_selector).jqGrid('GridUnload');
-                $('.ui-jqdialog').remove();
-            });
-    });
-    // Fin tabla idiomas
-
-    // tabla proyectos realizados
-    jQuery(function($) {
-        var grid_selector = "#table_proyectos";
-        var pager_selector = "#pager_proyectos";
-        
-        //cambiar el tamaño para ajustarse al tamaño de la página
-        $(window).on('resize.jqGrid', function () {
-            $(grid_selector).jqGrid( 'setGridWidth', $(".page-content").width() -40);
-        })
-        //cambiar el tamaño de la barra lateral collapse/expand
-        var parent_column = $(grid_selector).closest('[class*="col-"]');
-        $(document).on('settings.ace.jqGrid' , function(ev, event_name, collapsed) {
-            if( event_name === 'sidebar_collapsed' || event_name === 'main_container_fixed' ) {
-                //para dar tiempo a los cambios de DOM y luego volver a dibujar!!!
-                setTimeout(function() {
-                    $(grid_selector).jqGrid( 'setGridWidth', parent_column.width() );
-                }, 0);
-            }
-        })
-
-        jQuery(grid_selector).jqGrid({         
-            url: 'xmlProyectos.php',
-            datatype: "xml",
-            height: 250,
-            colNames:['ID','NOMBRE PROYECTO','CARGO PROYECTO','TIEMPO PROYECTO','FECHA CREACIÓN'],
-            colModel:[
-                {name:'id_proyecto',index:'id_proyecto', width:50, sorttype:"int", editable: true, hidden: true, editoptions: {readonly: 'readonly'}},
-                {name:'nombre_proyecto',index:'nombre_proyecto', width:150,editable: true,editoptions:{size:"20"}, editrules: {required: true}},                
-                {name:'cargo_proyecto',index:'cargo_proyecto', width:100,editable: true,editoptions:{size:"20"}, editrules: {required: true}},
-                {name:'tiempo_proyecto',index:'tiempo_proyecto', width:100,editable: true,editoptions:{size:"20"}, editrules: {required: true}},
-                {name:'fecha_creacion',index:'fecha_creacion', width:100, editable: true, editoptions:{size:"20",maxlength:"30",readonly: 'readonly'}, editrules: {required: false}},
-            ], 
-            rowNum:10,
-            rowList:[10,20,30],
-            pager : pager_selector,
-            sortname: 'id_proyecto',
-            sortorder: 'asc',
-            altRows: true,
-            multiselect: false,
-            multiboxonly: false,
-            viewrecords : true,
-            loadComplete : function() {
-                var table = this;
-                setTimeout(function(){
-                    styleCheckbox(table);
-                    updateActionIcons(table);
-                    updatePagerIcons(table);
-                    enableTooltips(table);
-                }, 0);
-            },
-
-            editurl: 'proyectos.php',
-            caption: "PROYECTOS"
+        $(document).one('ajaxloadstart.page', function(e) {
+            $(grid_selector).jqGrid('GridUnload');
+            $('.ui-jqdialog').remove();
         });
-        $(window).triggerHandler('resize.jqGrid');//cambiar el tamaño para hacer la rejilla conseguir el tamaño correcto
+    }); 
 
-        function aceSwitch( cellvalue, options, cell ) {
-            setTimeout(function(){
-                $(cell) .find('input[type=checkbox]')
-                .addClass('ace ace-switch ace-switch-5')
-                .after('<span class="lbl"></span>');
-            }, 0);
-        }
-        //enable datepicker
-        function pickDate( cellvalue, options, cell ) {
-            setTimeout(function(){
-                $(cell) .find('input[type=text]')
-                .datepicker({format:'yyyy-mm-dd' , autoclose:true}); 
-            }, 0);
-        }
 
-        //navButtons
-        jQuery(grid_selector).jqGrid('navGrid',pager_selector,
-        {   //navbar options
-            edit: true,
-            editicon : 'ace-icon fa fa-pencil blue',
-            add: true,
-            addicon : 'ace-icon fa fa-plus-circle purple',
-            del: false,
-            delicon : 'ace-icon fa fa-trash-o red',
-            search: true,
-            searchicon : 'ace-icon fa fa-search orange',
-            refresh: true,
-            refreshicon : 'ace-icon fa fa-refresh green',
-            view: true,
-            viewicon : 'ace-icon fa fa-search-plus grey'
-        },
-        {
-            closeAfterEdit: true,
-            recreateForm: true,
-            viewPagerButtons: false,
-            overlay:false,
-            beforeShowForm : function(e) {
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-                style_edit_form(form);
-            },
-            // afterSubmit: function (response) {
-            // if(response.responseText == 2) {
-            //         $.gritter.add({
-            //             title: 'Mensaje',
-            //             text: 'Registro Modificado correctamente <i class="ace-icon fa fa-spinner fa-spin green bigger-125"></i>',
-            //             time: 1000              
-            //         });
-            //         return true;
-            //     } else {
-            //         if(response.responseText == 3) { 
-            //             $("#nombre_idioma").val("");
-            //             return [false,"Error.. El idioma ya existe"];
-            //         }   
-            //     }
-            // },
-        },
-        {
-            closeAfterAdd: true,
-            recreateForm: true,
-            viewPagerButtons: false,
-            overlay:false,
-            beforeShowForm : function(e) {
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-                style_edit_form(form);
-            },
-            // afterSubmit: function (response) {
-            // if(response.responseText == 1) {
-            //         $.gritter.add({
-            //             title: 'Mensaje',
-            //             text: 'Registro Modificado correctamente <i class="ace-icon fa fa-spinner fa-spin green bigger-125"></i>',
-            //             time: 1000              
-            //         });
-            //         return true;
-            //     } else {
-            //         if(response.responseText == 3) { 
-            //             $("#nombre_idioma").val("");
-            //             return [false,"Error.. El idioma ya existe"];
-            //         }   
-            //     }
-            // },
-        },
-        {
-            //delete record form
-            recreateForm: true,
-            overlay:false,
-            beforeShowForm : function(e) {
-                var form = $(e[0]);
-                if(form.data('styled')) return false;
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-                style_delete_form(form);
-                form.data('styled', true);
-            },
-            onClick : function(e) {
-                //alert(1);
-            }
-        },
-        {
-              recreateForm: true,
-              overlay:false,
-            afterShowSearch: function(e) {
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-title').wrap('<div class="widget-header" />')
-                style_search_form(form);
-            },
-            afterRedraw: function(){
-                style_search_filters($(this));
-            }
-            ,
-            multipleSearch: false,
-          },
-        {
-            //view record form
-            recreateForm: true,
-            overlay:false,
-            beforeShowForm: function(e){
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-title').wrap('<div class="widget-header" />')
-            }
-        })
-
-        function style_edit_form(form) {
-            form.find('input[name=sdate]').datepicker({format:'yyyy-mm-dd' , autoclose:true})
-            form.find('input[name=stock]').addClass('ace ace-switch ace-switch-5').after('<span class="lbl"></span>');
-            var buttons = form.next().find('.EditButton .fm-button');
-            buttons.addClass('btn btn-sm').find('[class*="-icon"]').hide();//ui-icon, s-icon
-            buttons.eq(0).addClass('btn-primary').prepend('<i class="ace-icon fa fa-check"></i>');
-            buttons.eq(1).prepend('<i class="ace-icon fa fa-times"></i>')
-            
-            buttons = form.next().find('.navButton a');
-            buttons.find('.ui-icon').hide();
-            buttons.eq(0).append('<i class="ace-icon fa fa-chevron-left"></i>');
-            buttons.eq(1).append('<i class="ace-icon fa fa-chevron-right"></i>');       
-        }
-
-        function style_delete_form(form) {
-            var buttons = form.next().find('.EditButton .fm-button');
-            buttons.addClass('btn btn-sm btn-white btn-round').find('[class*="-icon"]').hide();//ui-icon, s-icon
-            buttons.eq(0).addClass('btn-danger').prepend('<i class="ace-icon fa fa-trash-o"></i>');
-            buttons.eq(1).addClass('btn-default').prepend('<i class="ace-icon fa fa-times"></i>')
-        }
-        
-        function style_search_filters(form) {
-            form.find('.delete-rule').val('X');
-            form.find('.add-rule').addClass('btn btn-xs btn-primary');
-            form.find('.add-group').addClass('btn btn-xs btn-success');
-            form.find('.delete-group').addClass('btn btn-xs btn-danger');
-        }
-
-        function style_search_form(form) {
-            var dialog = form.closest('.ui-jqdialog');
-            var buttons = dialog.find('.EditTable')
-            buttons.find('.EditButton a[id*="_reset"]').addClass('btn btn-sm btn-info').find('.ui-icon').attr('class', 'ace-icon fa fa-retweet');
-            buttons.find('.EditButton a[id*="_query"]').addClass('btn btn-sm btn-inverse').find('.ui-icon').attr('class', 'ace-icon fa fa-comment-o');
-            buttons.find('.EditButton a[id*="_search"]').addClass('btn btn-sm btn-purple').find('.ui-icon').attr('class', 'ace-icon fa fa-search');
-        }
-        
-        function beforeDeleteCallback(e) {
-            var form = $(e[0]);
-            if(form.data('styled')) return false;
-            
-            form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-            style_delete_form(form);
-            
-            form.data('styled', true);
-        }
-        
-        function beforeEditCallback(e) {
-            var form = $(e[0]);
-            form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-            style_edit_form(form);
-        }
-        function styleCheckbox(table) {
-        }
-        function updateActionIcons(table) {
-        }
-            
-        function updatePagerIcons(table) {
-            var replacement = 
-                {
-                'ui-icon-seek-first' : 'ace-icon fa fa-angle-double-left bigger-140',
-                'ui-icon-seek-prev' : 'ace-icon fa fa-angle-left bigger-140',
-                'ui-icon-seek-next' : 'ace-icon fa fa-angle-right bigger-140',
-                'ui-icon-seek-end' : 'ace-icon fa fa-angle-double-right bigger-140'
-            };
-            $('.ui-pg-table:not(.navtable) > tbody > tr > .ui-pg-button > .ui-icon').each(function(){
-                var icon = $(this);
-                var $class = $.trim(icon.attr('class').replace('ui-icon', ''));
-                
-                if($class in replacement) icon.attr('class', 'ui-icon '+replacement[$class]);
-            })
-        }
-
-        function enableTooltips(table) {
-            $('.navtable .ui-pg-button').tooltip({container:'body'});
-            $(table).find('.ui-pg-div').tooltip({container:'body'});
-        }
-
-            //var selr = jQuery(grid_selector).jqGrid('getGridParam','selrow');
-
-            $(document).one('ajaxloadstart.page', function(e) {
-                $(grid_selector).jqGrid('GridUnload');
-                $('.ui-jqdialog').remove();
-            });
-    });
-    // Fin tabla proyectos
-
-    // tabla cursos realizados
-    jQuery(function($) {
-        var grid_selector = "#table_cursos";
-        var pager_selector = "#pager_cursos";
-        
-        //cambiar el tamaño para ajustarse al tamaño de la página
-        $(window).on('resize.jqGrid', function () {
-            $(grid_selector).jqGrid( 'setGridWidth', $(".page-content").width() -40);
-        })
-        //cambiar el tamaño de la barra lateral collapse/expand
-        var parent_column = $(grid_selector).closest('[class*="col-"]');
-        $(document).on('settings.ace.jqGrid' , function(ev, event_name, collapsed) {
-            if( event_name === 'sidebar_collapsed' || event_name === 'main_container_fixed' ) {
-                //para dar tiempo a los cambios de DOM y luego volver a dibujar!!!
-                setTimeout(function() {
-                    $(grid_selector).jqGrid( 'setGridWidth', parent_column.width() );
-                }, 0);
-            }
-        })
-
-        jQuery(grid_selector).jqGrid({         
-            url: 'xmlCursos.php',
-            datatype: "xml",
-            height: 250,
-            colNames:['ID','TIPO CURSO','NOMBRE CURSO','LUGAR CURSO','DURACIÓN','FECHA CREACIÓN'],
-            colModel:[
-                {name:'id_curso',index:'id_curso', width:50, sorttype:"int", editable: true, hidden: true, editoptions: {readonly: 'readonly'}},
-                {name:'tipo_curso',index:'tipo_curso', width:150,editable: true,editoptions:{size:"20"}, editrules: {required: true}},                
-                {name:'nombre_curso',index:'nombre_curso', width:100,editable: true,editoptions:{size:"20"}, editrules: {required: true}},
-                {name:'inst_curso',index:'inst_curso', width:100,editable: true,editoptions:{size:"20"}, editrules: {required: true}},
-                {name:'time_curso',index:'time_curso', width:100,editable: true,editoptions:{size:"20"}, editrules: {required: true}},
-                {name:'fecha_creacion',index:'fecha_creacion', width:100, editable: true, editoptions:{size:"20",maxlength:"30",readonly: 'readonly'}, editrules: {required: false}},
-            ], 
-            rowNum:10,
-            rowList:[10,20,30],
-            pager : pager_selector,
-            sortname: 'id_curso',
-            sortorder: 'asc',
-            altRows: true,
-            multiselect: false,
-            multiboxonly: false,
-            viewrecords : true,
-            loadComplete : function() {
-                var table = this;
-                setTimeout(function(){
-                    styleCheckbox(table);
-                    updateActionIcons(table);
-                    updatePagerIcons(table);
-                    enableTooltips(table);
-                }, 0);
-            },
-
-            editurl: 'cursos.php',
-            caption: "CURSOS"
-        });
-        $(window).triggerHandler('resize.jqGrid');//cambiar el tamaño para hacer la rejilla conseguir el tamaño correcto
-
-        function aceSwitch( cellvalue, options, cell ) {
-            setTimeout(function(){
-                $(cell) .find('input[type=checkbox]')
-                .addClass('ace ace-switch ace-switch-5')
-                .after('<span class="lbl"></span>');
-            }, 0);
-        }
-        //enable datepicker
-        function pickDate( cellvalue, options, cell ) {
-            setTimeout(function(){
-                $(cell) .find('input[type=text]')
-                .datepicker({format:'yyyy-mm-dd' , autoclose:true}); 
-            }, 0);
-        }
-
-        //navButtons
-        jQuery(grid_selector).jqGrid('navGrid',pager_selector,
-        {   //navbar options
-            edit: true,
-            editicon : 'ace-icon fa fa-pencil blue',
-            add: true,
-            addicon : 'ace-icon fa fa-plus-circle purple',
-            del: false,
-            delicon : 'ace-icon fa fa-trash-o red',
-            search: true,
-            searchicon : 'ace-icon fa fa-search orange',
-            refresh: true,
-            refreshicon : 'ace-icon fa fa-refresh green',
-            view: true,
-            viewicon : 'ace-icon fa fa-search-plus grey'
-        },
-        {
-            closeAfterEdit: true,
-            recreateForm: true,
-            viewPagerButtons: false,
-            overlay:false,
-            beforeShowForm : function(e) {
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-                style_edit_form(form);
-            },
-            // afterSubmit: function (response) {
-            // if(response.responseText == 2) {
-            //         $.gritter.add({
-            //             title: 'Mensaje',
-            //             text: 'Registro Modificado correctamente <i class="ace-icon fa fa-spinner fa-spin green bigger-125"></i>',
-            //             time: 1000              
-            //         });
-            //         return true;
-            //     } else {
-            //         if(response.responseText == 3) { 
-            //             $("#nombre_idioma").val("");
-            //             return [false,"Error.. El idioma ya existe"];
-            //         }   
-            //     }
-            // },
-        },
-        {
-            closeAfterAdd: true,
-            recreateForm: true,
-            viewPagerButtons: false,
-            overlay:false,
-            beforeShowForm : function(e) {
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-                style_edit_form(form);
-            },
-            // afterSubmit: function (response) {
-            // if(response.responseText == 1) {
-            //         $.gritter.add({
-            //             title: 'Mensaje',
-            //             text: 'Registro Modificado correctamente <i class="ace-icon fa fa-spinner fa-spin green bigger-125"></i>',
-            //             time: 1000              
-            //         });
-            //         return true;
-            //     } else {
-            //         if(response.responseText == 3) { 
-            //             $("#nombre_idioma").val("");
-            //             return [false,"Error.. El idioma ya existe"];
-            //         }   
-            //     }
-            // },
-        },
-        {
-            //delete record form
-            recreateForm: true,
-            overlay:false,
-            beforeShowForm : function(e) {
-                var form = $(e[0]);
-                if(form.data('styled')) return false;
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-                style_delete_form(form);
-                form.data('styled', true);
-            },
-            onClick : function(e) {
-                //alert(1);
-            }
-        },
-        {
-              recreateForm: true,
-              overlay:false,
-            afterShowSearch: function(e) {
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-title').wrap('<div class="widget-header" />')
-                style_search_form(form);
-            },
-            afterRedraw: function(){
-                style_search_filters($(this));
-            }
-            ,
-            multipleSearch: false,
-          },
-        {
-            //view record form
-            recreateForm: true,
-            overlay:false,
-            beforeShowForm: function(e){
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-title').wrap('<div class="widget-header" />')
-            }
-        })
-
-        function style_edit_form(form) {
-            form.find('input[name=sdate]').datepicker({format:'yyyy-mm-dd' , autoclose:true})
-            form.find('input[name=stock]').addClass('ace ace-switch ace-switch-5').after('<span class="lbl"></span>');
-            var buttons = form.next().find('.EditButton .fm-button');
-            buttons.addClass('btn btn-sm').find('[class*="-icon"]').hide();//ui-icon, s-icon
-            buttons.eq(0).addClass('btn-primary').prepend('<i class="ace-icon fa fa-check"></i>');
-            buttons.eq(1).prepend('<i class="ace-icon fa fa-times"></i>')
-            
-            buttons = form.next().find('.navButton a');
-            buttons.find('.ui-icon').hide();
-            buttons.eq(0).append('<i class="ace-icon fa fa-chevron-left"></i>');
-            buttons.eq(1).append('<i class="ace-icon fa fa-chevron-right"></i>');       
-        }
-
-        function style_delete_form(form) {
-            var buttons = form.next().find('.EditButton .fm-button');
-            buttons.addClass('btn btn-sm btn-white btn-round').find('[class*="-icon"]').hide();//ui-icon, s-icon
-            buttons.eq(0).addClass('btn-danger').prepend('<i class="ace-icon fa fa-trash-o"></i>');
-            buttons.eq(1).addClass('btn-default').prepend('<i class="ace-icon fa fa-times"></i>')
-        }
-        
-        function style_search_filters(form) {
-            form.find('.delete-rule').val('X');
-            form.find('.add-rule').addClass('btn btn-xs btn-primary');
-            form.find('.add-group').addClass('btn btn-xs btn-success');
-            form.find('.delete-group').addClass('btn btn-xs btn-danger');
-        }
-
-        function style_search_form(form) {
-            var dialog = form.closest('.ui-jqdialog');
-            var buttons = dialog.find('.EditTable')
-            buttons.find('.EditButton a[id*="_reset"]').addClass('btn btn-sm btn-info').find('.ui-icon').attr('class', 'ace-icon fa fa-retweet');
-            buttons.find('.EditButton a[id*="_query"]').addClass('btn btn-sm btn-inverse').find('.ui-icon').attr('class', 'ace-icon fa fa-comment-o');
-            buttons.find('.EditButton a[id*="_search"]').addClass('btn btn-sm btn-purple').find('.ui-icon').attr('class', 'ace-icon fa fa-search');
-        }
-        
-        function beforeDeleteCallback(e) {
-            var form = $(e[0]);
-            if(form.data('styled')) return false;
-            
-            form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-            style_delete_form(form);
-            
-            form.data('styled', true);
-        }
-        
-        function beforeEditCallback(e) {
-            var form = $(e[0]);
-            form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-            style_edit_form(form);
-        }
-        function styleCheckbox(table) {
-        }
-        function updateActionIcons(table) {
-        }
-            
-        function updatePagerIcons(table) {
-            var replacement = 
-                {
-                'ui-icon-seek-first' : 'ace-icon fa fa-angle-double-left bigger-140',
-                'ui-icon-seek-prev' : 'ace-icon fa fa-angle-left bigger-140',
-                'ui-icon-seek-next' : 'ace-icon fa fa-angle-right bigger-140',
-                'ui-icon-seek-end' : 'ace-icon fa fa-angle-double-right bigger-140'
-            };
-            $('.ui-pg-table:not(.navtable) > tbody > tr > .ui-pg-button > .ui-icon').each(function(){
-                var icon = $(this);
-                var $class = $.trim(icon.attr('class').replace('ui-icon', ''));
-                
-                if($class in replacement) icon.attr('class', 'ui-icon '+replacement[$class]);
-            })
-        }
-
-        function enableTooltips(table) {
-            $('.navtable .ui-pg-button').tooltip({container:'body'});
-            $(table).find('.ui-pg-div').tooltip({container:'body'});
-        }
-
-            //var selr = jQuery(grid_selector).jqGrid('getGridParam','selrow');
-
-            $(document).one('ajaxloadstart.page', function(e) {
-                $(grid_selector).jqGrid('GridUnload');
-                $('.ui-jqdialog').remove();
-            });
-    });
-    // Fin tabla cursos
-
-    // tabla ponencias realizadas
-    jQuery(function($) {
-        var grid_selector = "#table_ponencias";
-        var pager_selector = "#pager_ponencias";
-        
-        //cambiar el tamaño para ajustarse al tamaño de la página
-        $(window).on('resize.jqGrid', function () {
-            $(grid_selector).jqGrid( 'setGridWidth', $(".page-content").width() -40);
-        })
-        //cambiar el tamaño de la barra lateral collapse/expand
-        var parent_column = $(grid_selector).closest('[class*="col-"]');
-        $(document).on('settings.ace.jqGrid' , function(ev, event_name, collapsed) {
-            if( event_name === 'sidebar_collapsed' || event_name === 'main_container_fixed' ) {
-                //para dar tiempo a los cambios de DOM y luego volver a dibujar!!!
-                setTimeout(function() {
-                    $(grid_selector).jqGrid( 'setGridWidth', parent_column.width() );
-                }, 0);
-            }
-        })
-
-        jQuery(grid_selector).jqGrid({         
-            url: 'xmlPonencias.php',
-            datatype: "xml",
-            height: 250,
-            colNames:['ID','NOMBRE PONENCIA','LUGAR PONENCIA','FECHA PONENCIA','FECHA CREACIÓN'],
-            colModel:[
-                {name:'id_ponencia',index:'id_ponencia', width:50, sorttype:"int", editable: true, hidden: true, editoptions: {readonly: 'readonly'}},
-                {name:'nombre_ponencia',index:'nombre_ponencia', width:150,editable: true,editoptions:{size:"20"}, editrules: {required: true}},                
-                {name:'lugar_ponencia',index:'lugar_ponencia', width:100,editable: true,editoptions:{size:"20"}, editrules: {required: true}},
-                {name:'fecha_ponencia',index:'fecha_ponencia',width:90, editable:true, sorttype:"date",unformat: pickDate},
-                {name:'fecha_creacion',index:'fecha_creacion', width:100, editable: true, editoptions:{size:"20",maxlength:"30",readonly: 'readonly'}, editrules: {required: false}},
-            ], 
-            rowNum:10,
-            rowList:[10,20,30],
-            pager : pager_selector,
-            sortname: 'id_ponencia',
-            sortorder: 'asc',
-            altRows: true,
-            multiselect: false,
-            multiboxonly: false,
-            viewrecords : true,
-            loadComplete : function() {
-                var table = this;
-                setTimeout(function(){
-                    styleCheckbox(table);
-                    updateActionIcons(table);
-                    updatePagerIcons(table);
-                    enableTooltips(table);
-                }, 0);
-            },
-
-            editurl: 'ponencias.php',
-            caption: "PONENCIAS"
-        });
-        $(window).triggerHandler('resize.jqGrid');//cambiar el tamaño para hacer la rejilla conseguir el tamaño correcto
-
-        function aceSwitch( cellvalue, options, cell ) {
-            setTimeout(function(){
-                $(cell) .find('input[type=checkbox]')
-                .addClass('ace ace-switch ace-switch-5')
-                .after('<span class="lbl"></span>');
-            }, 0);
-        }
-        //enable datepicker
-        function pickDate( cellvalue, options, cell ) {
-            setTimeout(function(){
-                $(cell) .find('input[type=text]')
-                .datepicker({format:'yyyy-mm-dd' , autoclose:true}); 
-            }, 0);
-        }
-
-        //navButtons
-        jQuery(grid_selector).jqGrid('navGrid',pager_selector,
-        {   //navbar options
-            edit: true,
-            editicon : 'ace-icon fa fa-pencil blue',
-            add: true,
-            addicon : 'ace-icon fa fa-plus-circle purple',
-            del: false,
-            delicon : 'ace-icon fa fa-trash-o red',
-            search: true,
-            searchicon : 'ace-icon fa fa-search orange',
-            refresh: true,
-            refreshicon : 'ace-icon fa fa-refresh green',
-            view: true,
-            viewicon : 'ace-icon fa fa-search-plus grey'
-        },
-        {
-            closeAfterEdit: true,
-            recreateForm: true,
-            viewPagerButtons: false,
-            overlay:false,
-            beforeShowForm : function(e) {
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-                style_edit_form(form);
-            },
-            // afterSubmit: function (response) {
-            // if(response.responseText == 2) {
-            //         $.gritter.add({
-            //             title: 'Mensaje',
-            //             text: 'Registro Modificado correctamente <i class="ace-icon fa fa-spinner fa-spin green bigger-125"></i>',
-            //             time: 1000              
-            //         });
-            //         return true;
-            //     } else {
-            //         if(response.responseText == 3) { 
-            //             $("#nombre_idioma").val("");
-            //             return [false,"Error.. El idioma ya existe"];
-            //         }   
-            //     }
-            // },
-        },
-        {
-            closeAfterAdd: true,
-            recreateForm: true,
-            viewPagerButtons: false,
-            overlay:false,
-            beforeShowForm : function(e) {
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-                style_edit_form(form);
-            },
-            // afterSubmit: function (response) {
-            // if(response.responseText == 1) {
-            //         $.gritter.add({
-            //             title: 'Mensaje',
-            //             text: 'Registro Modificado correctamente <i class="ace-icon fa fa-spinner fa-spin green bigger-125"></i>',
-            //             time: 1000              
-            //         });
-            //         return true;
-            //     } else {
-            //         if(response.responseText == 3) { 
-            //             $("#nombre_idioma").val("");
-            //             return [false,"Error.. El idioma ya existe"];
-            //         }   
-            //     }
-            // },
-        },
-        {
-            //delete record form
-            recreateForm: true,
-            overlay:false,
-            beforeShowForm : function(e) {
-                var form = $(e[0]);
-                if(form.data('styled')) return false;
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-                style_delete_form(form);
-                form.data('styled', true);
-            },
-            onClick : function(e) {
-                //alert(1);
-            }
-        },
-        {
-              recreateForm: true,
-              overlay:false,
-            afterShowSearch: function(e) {
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-title').wrap('<div class="widget-header" />')
-                style_search_form(form);
-            },
-            afterRedraw: function(){
-                style_search_filters($(this));
-            }
-            ,
-            multipleSearch: false,
-          },
-        {
-            //view record form
-            recreateForm: true,
-            overlay:false,
-            beforeShowForm: function(e){
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-title').wrap('<div class="widget-header" />')
-            }
-        })
-
-        function style_edit_form(form) {
-            form.find('input[name=fecha_ponencia]').datepicker({format:'yyyy-mm-dd' , autoclose:true})
-            form.find('input[name=stock]').addClass('ace ace-switch ace-switch-5').after('<span class="lbl"></span>');
-            var buttons = form.next().find('.EditButton .fm-button');
-            buttons.addClass('btn btn-sm').find('[class*="-icon"]').hide();//ui-icon, s-icon
-            buttons.eq(0).addClass('btn-primary').prepend('<i class="ace-icon fa fa-check"></i>');
-            buttons.eq(1).prepend('<i class="ace-icon fa fa-times"></i>')
-            
-            buttons = form.next().find('.navButton a');
-            buttons.find('.ui-icon').hide();
-            buttons.eq(0).append('<i class="ace-icon fa fa-chevron-left"></i>');
-            buttons.eq(1).append('<i class="ace-icon fa fa-chevron-right"></i>');       
-        }
-
-        function style_delete_form(form) {
-            var buttons = form.next().find('.EditButton .fm-button');
-            buttons.addClass('btn btn-sm btn-white btn-round').find('[class*="-icon"]').hide();//ui-icon, s-icon
-            buttons.eq(0).addClass('btn-danger').prepend('<i class="ace-icon fa fa-trash-o"></i>');
-            buttons.eq(1).addClass('btn-default').prepend('<i class="ace-icon fa fa-times"></i>')
-        }
-        
-        function style_search_filters(form) {
-            form.find('.delete-rule').val('X');
-            form.find('.add-rule').addClass('btn btn-xs btn-primary');
-            form.find('.add-group').addClass('btn btn-xs btn-success');
-            form.find('.delete-group').addClass('btn btn-xs btn-danger');
-        }
-
-        function style_search_form(form) {
-            var dialog = form.closest('.ui-jqdialog');
-            var buttons = dialog.find('.EditTable')
-            buttons.find('.EditButton a[id*="_reset"]').addClass('btn btn-sm btn-info').find('.ui-icon').attr('class', 'ace-icon fa fa-retweet');
-            buttons.find('.EditButton a[id*="_query"]').addClass('btn btn-sm btn-inverse').find('.ui-icon').attr('class', 'ace-icon fa fa-comment-o');
-            buttons.find('.EditButton a[id*="_search"]').addClass('btn btn-sm btn-purple').find('.ui-icon').attr('class', 'ace-icon fa fa-search');
-        }
-        
-        function beforeDeleteCallback(e) {
-            var form = $(e[0]);
-            if(form.data('styled')) return false;
-            
-            form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-            style_delete_form(form);
-            
-            form.data('styled', true);
-        }
-        
-        function beforeEditCallback(e) {
-            var form = $(e[0]);
-            form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-            style_edit_form(form);
-        }
-        function styleCheckbox(table) {
-        }
-        function updateActionIcons(table) {
-        }
-            
-        function updatePagerIcons(table) {
-            var replacement = 
-                {
-                'ui-icon-seek-first' : 'ace-icon fa fa-angle-double-left bigger-140',
-                'ui-icon-seek-prev' : 'ace-icon fa fa-angle-left bigger-140',
-                'ui-icon-seek-next' : 'ace-icon fa fa-angle-right bigger-140',
-                'ui-icon-seek-end' : 'ace-icon fa fa-angle-double-right bigger-140'
-            };
-            $('.ui-pg-table:not(.navtable) > tbody > tr > .ui-pg-button > .ui-icon').each(function(){
-                var icon = $(this);
-                var $class = $.trim(icon.attr('class').replace('ui-icon', ''));
-                
-                if($class in replacement) icon.attr('class', 'ui-icon '+replacement[$class]);
-            })
-        }
-
-        function enableTooltips(table) {
-            $('.navtable .ui-pg-button').tooltip({container:'body'});
-            $(table).find('.ui-pg-div').tooltip({container:'body'});
-        }
-
-            //var selr = jQuery(grid_selector).jqGrid('getGridParam','selrow');
-
-            $(document).one('ajaxloadstart.page', function(e) {
-                $(grid_selector).jqGrid('GridUnload');
-                $('.ui-jqdialog').remove();
-            });
-    });
-    // Fin tabla ponencias
-
-    // tabla premios obtenidos
-    jQuery(function($) {
-        var grid_selector = "#table_premios";
-        var pager_selector = "#pager_premios";
-        
-        //cambiar el tamaño para ajustarse al tamaño de la página
-        $(window).on('resize.jqGrid', function () {
-            $(grid_selector).jqGrid( 'setGridWidth', $(".page-content").width() -40);
-        })
-        //cambiar el tamaño de la barra lateral collapse/expand
-        var parent_column = $(grid_selector).closest('[class*="col-"]');
-        $(document).on('settings.ace.jqGrid' , function(ev, event_name, collapsed) {
-            if( event_name === 'sidebar_collapsed' || event_name === 'main_container_fixed' ) {
-                //para dar tiempo a los cambios de DOM y luego volver a dibujar!!!
-                setTimeout(function() {
-                    $(grid_selector).jqGrid( 'setGridWidth', parent_column.width() );
-                }, 0);
-            }
-        })
-
-        jQuery(grid_selector).jqGrid({         
-            url: 'xmlPremios.php',
-            datatype: "xml",
-            height: 250,
-            colNames:['ID','NOMBRE PREMIO','TIPO PREMIO','MOTIVO PREMIO','FECHA CREACIÓN'],
-            colModel:[
-                {name:'id_premio',index:'id_premio', width:50, sorttype:"int", editable: true, hidden: true, editoptions: {readonly: 'readonly'}},
-                {name:'nombre_premio',index:'nombre_premio', width:150,editable: true,editoptions:{size:"20"}, editrules: {required: true}},                
-                {name:'tipo_premio',index:'tipo_premio', width:100,editable: true,editoptions:{size:"20"}, editrules: {required: true}},
-                {name:'motivo_premio',index:'motivo_premio', width:100,editable: true,editoptions:{size:"20"}, editrules: {required: true}},
-                {name:'fecha_creacion',index:'fecha_creacion', width:100, editable: true, editoptions:{size:"20",maxlength:"30",readonly: 'readonly'}, editrules: {required: false}},
-            ], 
-            rowNum:10,
-            rowList:[10,20,30],
-            pager : pager_selector,
-            sortname: 'id_premio',
-            sortorder: 'asc',
-            altRows: true,
-            multiselect: false,
-            multiboxonly: false,
-            viewrecords : true,
-            loadComplete : function() {
-                var table = this;
-                setTimeout(function(){
-                    styleCheckbox(table);
-                    updateActionIcons(table);
-                    updatePagerIcons(table);
-                    enableTooltips(table);
-                }, 0);
-            },
-
-            editurl: 'premios.php',
-            caption: "PREMIOS"
-        });
-        $(window).triggerHandler('resize.jqGrid');//cambiar el tamaño para hacer la rejilla conseguir el tamaño correcto
-
-        function aceSwitch( cellvalue, options, cell ) {
-            setTimeout(function(){
-                $(cell) .find('input[type=checkbox]')
-                .addClass('ace ace-switch ace-switch-5')
-                .after('<span class="lbl"></span>');
-            }, 0);
-        }
-        //enable datepicker
-        function pickDate( cellvalue, options, cell ) {
-            setTimeout(function(){
-                $(cell) .find('input[type=text]')
-                .datepicker({format:'yyyy-mm-dd' , autoclose:true}); 
-            }, 0);
-        }
-
-        //navButtons
-        jQuery(grid_selector).jqGrid('navGrid',pager_selector,
-        {   //navbar options
-            edit: true,
-            editicon : 'ace-icon fa fa-pencil blue',
-            add: true,
-            addicon : 'ace-icon fa fa-plus-circle purple',
-            del: false,
-            delicon : 'ace-icon fa fa-trash-o red',
-            search: true,
-            searchicon : 'ace-icon fa fa-search orange',
-            refresh: true,
-            refreshicon : 'ace-icon fa fa-refresh green',
-            view: true,
-            viewicon : 'ace-icon fa fa-search-plus grey'
-        },
-        {
-            closeAfterEdit: true,
-            recreateForm: true,
-            viewPagerButtons: false,
-            overlay:false,
-            beforeShowForm : function(e) {
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-                style_edit_form(form);
-            },
-            // afterSubmit: function (response) {
-            // if(response.responseText == 2) {
-            //         $.gritter.add({
-            //             title: 'Mensaje',
-            //             text: 'Registro Modificado correctamente <i class="ace-icon fa fa-spinner fa-spin green bigger-125"></i>',
-            //             time: 1000              
-            //         });
-            //         return true;
-            //     } else {
-            //         if(response.responseText == 3) { 
-            //             $("#nombre_idioma").val("");
-            //             return [false,"Error.. El idioma ya existe"];
-            //         }   
-            //     }
-            // },
-        },
-        {
-            closeAfterAdd: true,
-            recreateForm: true,
-            viewPagerButtons: false,
-            overlay:false,
-            beforeShowForm : function(e) {
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-                style_edit_form(form);
-            },
-            // afterSubmit: function (response) {
-            // if(response.responseText == 1) {
-            //         $.gritter.add({
-            //             title: 'Mensaje',
-            //             text: 'Registro Modificado correctamente <i class="ace-icon fa fa-spinner fa-spin green bigger-125"></i>',
-            //             time: 1000              
-            //         });
-            //         return true;
-            //     } else {
-            //         if(response.responseText == 3) { 
-            //             $("#nombre_idioma").val("");
-            //             return [false,"Error.. El idioma ya existe"];
-            //         }   
-            //     }
-            // },
-        },
-        {
-            //delete record form
-            recreateForm: true,
-            overlay:false,
-            beforeShowForm : function(e) {
-                var form = $(e[0]);
-                if(form.data('styled')) return false;
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-                style_delete_form(form);
-                form.data('styled', true);
-            },
-            onClick : function(e) {
-                //alert(1);
-            }
-        },
-        {
-              recreateForm: true,
-              overlay:false,
-            afterShowSearch: function(e) {
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-title').wrap('<div class="widget-header" />')
-                style_search_form(form);
-            },
-            afterRedraw: function(){
-                style_search_filters($(this));
-            }
-            ,
-            multipleSearch: false,
-          },
-        {
-            //view record form
-            recreateForm: true,
-            overlay:false,
-            beforeShowForm: function(e){
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-title').wrap('<div class="widget-header" />')
-            }
-        })
-
-        function style_edit_form(form) {
-            form.find('input[name=sdate]').datepicker({format:'yyyy-mm-dd' , autoclose:true})
-            form.find('input[name=stock]').addClass('ace ace-switch ace-switch-5').after('<span class="lbl"></span>');
-            var buttons = form.next().find('.EditButton .fm-button');
-            buttons.addClass('btn btn-sm').find('[class*="-icon"]').hide();//ui-icon, s-icon
-            buttons.eq(0).addClass('btn-primary').prepend('<i class="ace-icon fa fa-check"></i>');
-            buttons.eq(1).prepend('<i class="ace-icon fa fa-times"></i>')
-            
-            buttons = form.next().find('.navButton a');
-            buttons.find('.ui-icon').hide();
-            buttons.eq(0).append('<i class="ace-icon fa fa-chevron-left"></i>');
-            buttons.eq(1).append('<i class="ace-icon fa fa-chevron-right"></i>');       
-        }
-
-        function style_delete_form(form) {
-            var buttons = form.next().find('.EditButton .fm-button');
-            buttons.addClass('btn btn-sm btn-white btn-round').find('[class*="-icon"]').hide();//ui-icon, s-icon
-            buttons.eq(0).addClass('btn-danger').prepend('<i class="ace-icon fa fa-trash-o"></i>');
-            buttons.eq(1).addClass('btn-default').prepend('<i class="ace-icon fa fa-times"></i>')
-        }
-        
-        function style_search_filters(form) {
-            form.find('.delete-rule').val('X');
-            form.find('.add-rule').addClass('btn btn-xs btn-primary');
-            form.find('.add-group').addClass('btn btn-xs btn-success');
-            form.find('.delete-group').addClass('btn btn-xs btn-danger');
-        }
-
-        function style_search_form(form) {
-            var dialog = form.closest('.ui-jqdialog');
-            var buttons = dialog.find('.EditTable')
-            buttons.find('.EditButton a[id*="_reset"]').addClass('btn btn-sm btn-info').find('.ui-icon').attr('class', 'ace-icon fa fa-retweet');
-            buttons.find('.EditButton a[id*="_query"]').addClass('btn btn-sm btn-inverse').find('.ui-icon').attr('class', 'ace-icon fa fa-comment-o');
-            buttons.find('.EditButton a[id*="_search"]').addClass('btn btn-sm btn-purple').find('.ui-icon').attr('class', 'ace-icon fa fa-search');
-        }
-        
-        function beforeDeleteCallback(e) {
-            var form = $(e[0]);
-            if(form.data('styled')) return false;
-            
-            form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-            style_delete_form(form);
-            
-            form.data('styled', true);
-        }
-        
-        function beforeEditCallback(e) {
-            var form = $(e[0]);
-            form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-            style_edit_form(form);
-        }
-        function styleCheckbox(table) {
-        }
-        function updateActionIcons(table) {
-        }
-            
-        function updatePagerIcons(table) {
-            var replacement = 
-                {
-                'ui-icon-seek-first' : 'ace-icon fa fa-angle-double-left bigger-140',
-                'ui-icon-seek-prev' : 'ace-icon fa fa-angle-left bigger-140',
-                'ui-icon-seek-next' : 'ace-icon fa fa-angle-right bigger-140',
-                'ui-icon-seek-end' : 'ace-icon fa fa-angle-double-right bigger-140'
-            };
-            $('.ui-pg-table:not(.navtable) > tbody > tr > .ui-pg-button > .ui-icon').each(function(){
-                var icon = $(this);
-                var $class = $.trim(icon.attr('class').replace('ui-icon', ''));
-                
-                if($class in replacement) icon.attr('class', 'ui-icon '+replacement[$class]);
-            })
-        }
-
-        function enableTooltips(table) {
-            $('.navtable .ui-pg-button').tooltip({container:'body'});
-            $(table).find('.ui-pg-div').tooltip({container:'body'});
-        }
-
-            //var selr = jQuery(grid_selector).jqGrid('getGridParam','selrow');
-
-            $(document).one('ajaxloadstart.page', function(e) {
-                $(grid_selector).jqGrid('GridUnload');
-                $('.ui-jqdialog').remove();
-            });
-    });
-    // Fin tabla premios
-
-    // tabla publicaciones obtenidos
-    jQuery(function($) {
-        var grid_selector = "#table_publicaciones";
-        var pager_selector = "#pager_publicaciones";
-        
-        //cambiar el tamaño para ajustarse al tamaño de la página
-        $(window).on('resize.jqGrid', function () {
-            $(grid_selector).jqGrid( 'setGridWidth', $(".page-content").width() -40);
-        })
-        //cambiar el tamaño de la barra lateral collapse/expand
-        var parent_column = $(grid_selector).closest('[class*="col-"]');
-        $(document).on('settings.ace.jqGrid' , function(ev, event_name, collapsed) {
-            if( event_name === 'sidebar_collapsed' || event_name === 'main_container_fixed' ) {
-                //para dar tiempo a los cambios de DOM y luego volver a dibujar!!!
-                setTimeout(function() {
-                    $(grid_selector).jqGrid( 'setGridWidth', parent_column.width() );
-                }, 0);
-            }
-        })
-
-        jQuery(grid_selector).jqGrid({         
-            url: 'xmlPublicaciones.php',
-            datatype: "xml",
-            height: 250,
-            colNames:['ID','NOMBRE PUBLI.','TIPO PUBLI.','LUGAR PUBLI.','FECHA PUBLI.','FECHA CREACIÓN'],
-            colModel:[
-                {name:'id_publicacion',index:'id_publicacion', width:50, sorttype:"int", editable: true, hidden: true, editoptions: {readonly: 'readonly'}},
-                {name:'nombre_publicacion',index:'nombre_publicacion', width:150,editable: true,editoptions:{size:"20"}, editrules: {required: true}},                
-                {name:'tipo_publicacion',index:'tipo_publicacion', width:100,editable: true,editoptions:{size:"20"}, editrules: {required: true}},
-                {name:'lugar_publicacion',index:'lugar_publicacion', width:100,editable: true,editoptions:{size:"20"}, editrules: {required: true}},
-                {name:'fecha_publicacion',index:'fecha_publicacion',width:90, editable:true, sorttype:"date",unformat: pickDate},
-                {name:'fecha_creacion',index:'fecha_creacion', width:100, editable: true, editoptions:{size:"20",maxlength:"30",readonly: 'readonly'}, editrules: {required: false}},
-            ], 
-            rowNum:10,
-            rowList:[10,20,30],
-            pager : pager_selector,
-            sortname: 'id_publicacion',
-            sortorder: 'asc',
-            altRows: true,
-            multiselect: false,
-            multiboxonly: false,
-            viewrecords : true,
-            loadComplete : function() {
-                var table = this;
-                setTimeout(function(){
-                    styleCheckbox(table);
-                    updateActionIcons(table);
-                    updatePagerIcons(table);
-                    enableTooltips(table);
-                }, 0);
-            },
-
-            editurl: 'publicaciones.php',
-            caption: "PUBLICACIONES"
-        });
-        $(window).triggerHandler('resize.jqGrid');//cambiar el tamaño para hacer la rejilla conseguir el tamaño correcto
-
-        function aceSwitch( cellvalue, options, cell ) {
-            setTimeout(function(){
-                $(cell) .find('input[type=checkbox]')
-                .addClass('ace ace-switch ace-switch-5')
-                .after('<span class="lbl"></span>');
-            }, 0);
-        }
-        //enable datepicker
-        function pickDate( cellvalue, options, cell ) {
-            setTimeout(function(){
-                $(cell) .find('input[type=text]')
-                .datepicker({format:'yyyy-mm-dd' , autoclose:true}); 
-            }, 0);
-        }
-
-        //navButtons
-        jQuery(grid_selector).jqGrid('navGrid',pager_selector,
-        {   //navbar options
-            edit: true,
-            editicon : 'ace-icon fa fa-pencil blue',
-            add: true,
-            addicon : 'ace-icon fa fa-plus-circle purple',
-            del: false,
-            delicon : 'ace-icon fa fa-trash-o red',
-            search: true,
-            searchicon : 'ace-icon fa fa-search orange',
-            refresh: true,
-            refreshicon : 'ace-icon fa fa-refresh green',
-            view: true,
-            viewicon : 'ace-icon fa fa-search-plus grey'
-        },
-        {
-            closeAfterEdit: true,
-            recreateForm: true,
-            viewPagerButtons: false,
-            overlay:false,
-            beforeShowForm : function(e) {
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-                style_edit_form(form);
-            },
-            // afterSubmit: function (response) {
-            // if(response.responseText == 2) {
-            //         $.gritter.add({
-            //             title: 'Mensaje',
-            //             text: 'Registro Modificado correctamente <i class="ace-icon fa fa-spinner fa-spin green bigger-125"></i>',
-            //             time: 1000              
-            //         });
-            //         return true;
-            //     } else {
-            //         if(response.responseText == 3) { 
-            //             $("#nombre_idioma").val("");
-            //             return [false,"Error.. El idioma ya existe"];
-            //         }   
-            //     }
-            // },
-        },
-        {
-            closeAfterAdd: true,
-            recreateForm: true,
-            viewPagerButtons: false,
-            overlay:false,
-            beforeShowForm : function(e) {
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-                style_edit_form(form);
-            },
-            // afterSubmit: function (response) {
-            // if(response.responseText == 1) {
-            //         $.gritter.add({
-            //             title: 'Mensaje',
-            //             text: 'Registro Modificado correctamente <i class="ace-icon fa fa-spinner fa-spin green bigger-125"></i>',
-            //             time: 1000              
-            //         });
-            //         return true;
-            //     } else {
-            //         if(response.responseText == 3) { 
-            //             $("#nombre_idioma").val("");
-            //             return [false,"Error.. El idioma ya existe"];
-            //         }   
-            //     }
-            // },
-        },
-        {
-            //delete record form
-            recreateForm: true,
-            overlay:false,
-            beforeShowForm : function(e) {
-                var form = $(e[0]);
-                if(form.data('styled')) return false;
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-                style_delete_form(form);
-                form.data('styled', true);
-            },
-            onClick : function(e) {
-                //alert(1);
-            }
-        },
-        {
-              recreateForm: true,
-              overlay:false,
-            afterShowSearch: function(e) {
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-title').wrap('<div class="widget-header" />')
-                style_search_form(form);
-            },
-            afterRedraw: function(){
-                style_search_filters($(this));
-            }
-            ,
-            multipleSearch: false,
-          },
-        {
-            //view record form
-            recreateForm: true,
-            overlay:false,
-            beforeShowForm: function(e){
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-title').wrap('<div class="widget-header" />')
-            }
-        })
-
-        function style_edit_form(form) {
-            form.find('input[name=fecha_publicacion]').datepicker({format:'yyyy-mm-dd' , autoclose:true})
-            form.find('input[name=stock]').addClass('ace ace-switch ace-switch-5').after('<span class="lbl"></span>');
-            var buttons = form.next().find('.EditButton .fm-button');
-            buttons.addClass('btn btn-sm').find('[class*="-icon"]').hide();//ui-icon, s-icon
-            buttons.eq(0).addClass('btn-primary').prepend('<i class="ace-icon fa fa-check"></i>');
-            buttons.eq(1).prepend('<i class="ace-icon fa fa-times"></i>')
-            
-            buttons = form.next().find('.navButton a');
-            buttons.find('.ui-icon').hide();
-            buttons.eq(0).append('<i class="ace-icon fa fa-chevron-left"></i>');
-            buttons.eq(1).append('<i class="ace-icon fa fa-chevron-right"></i>');       
-        }
-
-        function style_delete_form(form) {
-            var buttons = form.next().find('.EditButton .fm-button');
-            buttons.addClass('btn btn-sm btn-white btn-round').find('[class*="-icon"]').hide();//ui-icon, s-icon
-            buttons.eq(0).addClass('btn-danger').prepend('<i class="ace-icon fa fa-trash-o"></i>');
-            buttons.eq(1).addClass('btn-default').prepend('<i class="ace-icon fa fa-times"></i>')
-        }
-        
-        function style_search_filters(form) {
-            form.find('.delete-rule').val('X');
-            form.find('.add-rule').addClass('btn btn-xs btn-primary');
-            form.find('.add-group').addClass('btn btn-xs btn-success');
-            form.find('.delete-group').addClass('btn btn-xs btn-danger');
-        }
-
-        function style_search_form(form) {
-            var dialog = form.closest('.ui-jqdialog');
-            var buttons = dialog.find('.EditTable')
-            buttons.find('.EditButton a[id*="_reset"]').addClass('btn btn-sm btn-info').find('.ui-icon').attr('class', 'ace-icon fa fa-retweet');
-            buttons.find('.EditButton a[id*="_query"]').addClass('btn btn-sm btn-inverse').find('.ui-icon').attr('class', 'ace-icon fa fa-comment-o');
-            buttons.find('.EditButton a[id*="_search"]').addClass('btn btn-sm btn-purple').find('.ui-icon').attr('class', 'ace-icon fa fa-search');
-        }
-        
-        function beforeDeleteCallback(e) {
-            var form = $(e[0]);
-            if(form.data('styled')) return false;
-            
-            form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-            style_delete_form(form);
-            
-            form.data('styled', true);
-        }
-        
-        function beforeEditCallback(e) {
-            var form = $(e[0]);
-            form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-            style_edit_form(form);
-        }
-        function styleCheckbox(table) {
-        }
-        function updateActionIcons(table) {
-        }
-            
-        function updatePagerIcons(table) {
-            var replacement = 
-                {
-                'ui-icon-seek-first' : 'ace-icon fa fa-angle-double-left bigger-140',
-                'ui-icon-seek-prev' : 'ace-icon fa fa-angle-left bigger-140',
-                'ui-icon-seek-next' : 'ace-icon fa fa-angle-right bigger-140',
-                'ui-icon-seek-end' : 'ace-icon fa fa-angle-double-right bigger-140'
-            };
-            $('.ui-pg-table:not(.navtable) > tbody > tr > .ui-pg-button > .ui-icon').each(function(){
-                var icon = $(this);
-                var $class = $.trim(icon.attr('class').replace('ui-icon', ''));
-                
-                if($class in replacement) icon.attr('class', 'ui-icon '+replacement[$class]);
-            })
-        }
-
-        function enableTooltips(table) {
-            $('.navtable .ui-pg-button').tooltip({container:'body'});
-            $(table).find('.ui-pg-div').tooltip({container:'body'});
-        }
-
-            //var selr = jQuery(grid_selector).jqGrid('getGridParam','selrow');
-
-            $(document).one('ajaxloadstart.page', function(e) {
-                $(grid_selector).jqGrid('GridUnload');
-                $('.ui-jqdialog').remove();
-            });
-    });
-    // Fin tabla premios
-
-    // tabla experiencia
-    jQuery(function($) {
-        var grid_selector = "#table_experiencia";
-        var pager_selector = "#pager_experiencia";
-        
-        //cambiar el tamaño para ajustarse al tamaño de la página
-        $(window).on('resize.jqGrid', function () {
-            $(grid_selector).jqGrid( 'setGridWidth', $(".page-content").width() -40);
-        })
-        //cambiar el tamaño de la barra lateral collapse/expand
-        var parent_column = $(grid_selector).closest('[class*="col-"]');
-        $(document).on('settings.ace.jqGrid' , function(ev, event_name, collapsed) {
-            if( event_name === 'sidebar_collapsed' || event_name === 'main_container_fixed' ) {
-                //para dar tiempo a los cambios de DOM y luego volver a dibujar!!!
-                setTimeout(function() {
-                    $(grid_selector).jqGrid( 'setGridWidth', parent_column.width() );
-                }, 0);
-            }
-        })
-
-        jQuery(grid_selector).jqGrid({         
-            url: 'xmlExperiencia.php',
-            datatype: "xml",
-            height: 250,
-            colNames:['ID','NOMBRE EMPRESA','CARGO','TIEMPO','CONTACTO','REFERENCIA','FECHA CREACIÓN'],
-            colModel:[
-                {name:'id_experiencia',index:'id_experiencia', width:50, sorttype:"int", editable: true, hidden: true, editoptions: {readonly: 'readonly'}},
-                {name:'nombre_empresa',index:'nombre_empresa', width:150,editable: true,editoptions:{size:"20"}, editrules: {required: true}},                
-                {name:'cargo_empresa',index:'cargo_empresa', width:100,editable: true,editoptions:{size:"20"}, editrules: {required: true}},
-                {name:'tiempo_empresa',index:'tiempo_empresa', width:100,editable: true,editoptions:{size:"20"}, editrules: {required: true}},
-                {name:'contacto_empresa',index:'contacto_empresa', width:100,editable: true,editoptions:{size:"20"}, editrules: {required: true}},
-                {name:'referencia',index:'referencia', width:100,editable: true,editoptions:{size:"20"}, editrules: {required: true}},
-                {name:'fecha_creacion',index:'fecha_creacion', width:100, editable: true, editoptions:{size:"20",maxlength:"30",readonly: 'readonly'}, editrules: {required: false}},
-            ], 
-            rowNum:10,
-            rowList:[10,20,30],
-            pager : pager_selector,
-            sortname: 'id_experiencia',
-            sortorder: 'asc',
-            altRows: true,
-            multiselect: false,
-            multiboxonly: false,
-            viewrecords : true,
-            loadComplete : function() {
-                var table = this;
-                setTimeout(function(){
-                    styleCheckbox(table);
-                    updateActionIcons(table);
-                    updatePagerIcons(table);
-                    enableTooltips(table);
-                }, 0);
-            },
-
-            editurl: 'experiencia.php',
-            caption: "EXPERIENCIA"
-        });
-        $(window).triggerHandler('resize.jqGrid');//cambiar el tamaño para hacer la rejilla conseguir el tamaño correcto
-
-        function aceSwitch( cellvalue, options, cell ) {
-            setTimeout(function(){
-                $(cell) .find('input[type=checkbox]')
-                .addClass('ace ace-switch ace-switch-5')
-                .after('<span class="lbl"></span>');
-            }, 0);
-        }
-        //enable datepicker
-        function pickDate( cellvalue, options, cell ) {
-            setTimeout(function(){
-                $(cell) .find('input[type=text]')
-                .datepicker({format:'yyyy-mm-dd' , autoclose:true}); 
-            }, 0);
-        }
-
-        //navButtons
-        jQuery(grid_selector).jqGrid('navGrid',pager_selector,
-        {   //navbar options
-            edit: true,
-            editicon : 'ace-icon fa fa-pencil blue',
-            add: true,
-            addicon : 'ace-icon fa fa-plus-circle purple',
-            del: false,
-            delicon : 'ace-icon fa fa-trash-o red',
-            search: true,
-            searchicon : 'ace-icon fa fa-search orange',
-            refresh: true,
-            refreshicon : 'ace-icon fa fa-refresh green',
-            view: true,
-            viewicon : 'ace-icon fa fa-search-plus grey'
-        },
-        {
-            closeAfterEdit: true,
-            recreateForm: true,
-            viewPagerButtons: false,
-            overlay:false,
-            beforeShowForm : function(e) {
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-                style_edit_form(form);
-            },
-            // afterSubmit: function (response) {
-            // if(response.responseText == 2) {
-            //         $.gritter.add({
-            //             title: 'Mensaje',
-            //             text: 'Registro Modificado correctamente <i class="ace-icon fa fa-spinner fa-spin green bigger-125"></i>',
-            //             time: 1000              
-            //         });
-            //         return true;
-            //     } else {
-            //         if(response.responseText == 3) { 
-            //             $("#nombre_idioma").val("");
-            //             return [false,"Error.. El idioma ya existe"];
-            //         }   
-            //     }
-            // },
-        },
-        {
-            closeAfterAdd: true,
-            recreateForm: true,
-            viewPagerButtons: false,
-            overlay:false,
-            beforeShowForm : function(e) {
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-                style_edit_form(form);
-            },
-            // afterSubmit: function (response) {
-            // if(response.responseText == 1) {
-            //         $.gritter.add({
-            //             title: 'Mensaje',
-            //             text: 'Registro Modificado correctamente <i class="ace-icon fa fa-spinner fa-spin green bigger-125"></i>',
-            //             time: 1000              
-            //         });
-            //         return true;
-            //     } else {
-            //         if(response.responseText == 3) { 
-            //             $("#nombre_idioma").val("");
-            //             return [false,"Error.. El idioma ya existe"];
-            //         }   
-            //     }
-            // },
-        },
-        {
-            //delete record form
-            recreateForm: true,
-            overlay:false,
-            beforeShowForm : function(e) {
-                var form = $(e[0]);
-                if(form.data('styled')) return false;
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-                style_delete_form(form);
-                form.data('styled', true);
-            },
-            onClick : function(e) {
-                //alert(1);
-            }
-        },
-        {
-              recreateForm: true,
-              overlay:false,
-            afterShowSearch: function(e) {
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-title').wrap('<div class="widget-header" />')
-                style_search_form(form);
-            },
-            afterRedraw: function(){
-                style_search_filters($(this));
-            }
-            ,
-            multipleSearch: false,
-          },
-        {
-            //view record form
-            recreateForm: true,
-            overlay:false,
-            beforeShowForm: function(e){
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-title').wrap('<div class="widget-header" />')
-            }
-        })
-
-        function style_edit_form(form) {
-            form.find('input[name=sdate]').datepicker({format:'yyyy-mm-dd' , autoclose:true})
-            form.find('input[name=stock]').addClass('ace ace-switch ace-switch-5').after('<span class="lbl"></span>');
-            var buttons = form.next().find('.EditButton .fm-button');
-            buttons.addClass('btn btn-sm').find('[class*="-icon"]').hide();//ui-icon, s-icon
-            buttons.eq(0).addClass('btn-primary').prepend('<i class="ace-icon fa fa-check"></i>');
-            buttons.eq(1).prepend('<i class="ace-icon fa fa-times"></i>')
-            
-            buttons = form.next().find('.navButton a');
-            buttons.find('.ui-icon').hide();
-            buttons.eq(0).append('<i class="ace-icon fa fa-chevron-left"></i>');
-            buttons.eq(1).append('<i class="ace-icon fa fa-chevron-right"></i>');       
-        }
-
-        function style_delete_form(form) {
-            var buttons = form.next().find('.EditButton .fm-button');
-            buttons.addClass('btn btn-sm btn-white btn-round').find('[class*="-icon"]').hide();//ui-icon, s-icon
-            buttons.eq(0).addClass('btn-danger').prepend('<i class="ace-icon fa fa-trash-o"></i>');
-            buttons.eq(1).addClass('btn-default').prepend('<i class="ace-icon fa fa-times"></i>')
-        }
-        
-        function style_search_filters(form) {
-            form.find('.delete-rule').val('X');
-            form.find('.add-rule').addClass('btn btn-xs btn-primary');
-            form.find('.add-group').addClass('btn btn-xs btn-success');
-            form.find('.delete-group').addClass('btn btn-xs btn-danger');
-        }
-
-        function style_search_form(form) {
-            var dialog = form.closest('.ui-jqdialog');
-            var buttons = dialog.find('.EditTable')
-            buttons.find('.EditButton a[id*="_reset"]').addClass('btn btn-sm btn-info').find('.ui-icon').attr('class', 'ace-icon fa fa-retweet');
-            buttons.find('.EditButton a[id*="_query"]').addClass('btn btn-sm btn-inverse').find('.ui-icon').attr('class', 'ace-icon fa fa-comment-o');
-            buttons.find('.EditButton a[id*="_search"]').addClass('btn btn-sm btn-purple').find('.ui-icon').attr('class', 'ace-icon fa fa-search');
-        }
-        
-        function beforeDeleteCallback(e) {
-            var form = $(e[0]);
-            if(form.data('styled')) return false;
-            
-            form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-            style_delete_form(form);
-            
-            form.data('styled', true);
-        }
-        
-        function beforeEditCallback(e) {
-            var form = $(e[0]);
-            form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-            style_edit_form(form);
-        }
-        function styleCheckbox(table) {
-        }
-        function updateActionIcons(table) {
-        }
-            
-        function updatePagerIcons(table) {
-            var replacement = 
-                {
-                'ui-icon-seek-first' : 'ace-icon fa fa-angle-double-left bigger-140',
-                'ui-icon-seek-prev' : 'ace-icon fa fa-angle-left bigger-140',
-                'ui-icon-seek-next' : 'ace-icon fa fa-angle-right bigger-140',
-                'ui-icon-seek-end' : 'ace-icon fa fa-angle-double-right bigger-140'
-            };
-            $('.ui-pg-table:not(.navtable) > tbody > tr > .ui-pg-button > .ui-icon').each(function(){
-                var icon = $(this);
-                var $class = $.trim(icon.attr('class').replace('ui-icon', ''));
-                
-                if($class in replacement) icon.attr('class', 'ui-icon '+replacement[$class]);
-            })
-        }
-
-        function enableTooltips(table) {
-            $('.navtable .ui-pg-button').tooltip({container:'body'});
-            $(table).find('.ui-pg-div').tooltip({container:'body'});
-        }
-
-            //var selr = jQuery(grid_selector).jqGrid('getGridParam','selrow');
-
-            $(document).one('ajaxloadstart.page', function(e) {
-                $(grid_selector).jqGrid('GridUnload');
-                $('.ui-jqdialog').remove();
-            });
-    });
-    // Fin tabla premios
-
-    // tabla experiencia
-    jQuery(function($) {
-        var grid_selector = "#table_titulos";
-        var pager_selector = "#pager_titulos";
-        
-        //cambiar el tamaño para ajustarse al tamaño de la página
-        $(window).on('resize.jqGrid', function () {
-            $(grid_selector).jqGrid( 'setGridWidth', $(".page-content").width() -40);
-        })
-        //cambiar el tamaño de la barra lateral collapse/expand
-        var parent_column = $(grid_selector).closest('[class*="col-"]');
-        $(document).on('settings.ace.jqGrid' , function(ev, event_name, collapsed) {
-            if( event_name === 'sidebar_collapsed' || event_name === 'main_container_fixed' ) {
-                //para dar tiempo a los cambios de DOM y luego volver a dibujar!!!
-                setTimeout(function() {
-                    $(grid_selector).jqGrid( 'setGridWidth', parent_column.width() );
-                }, 0);
-            }
-        })
-
-        jQuery(grid_selector).jqGrid({         
-            url: 'xmlTitulos.php',
-            datatype: "xml",
-            height: 250,
-            colNames:['ID','NOMBRE TITULO','NIVEL','UBICACIÓN','FECHA TITULO','PAÍS','AREA','REG. TITULO','FECHA CREACIÓN'],
-            colModel:[
-                {name:'id_titulo',index:'id_titulo', width:50, sorttype:"int", editable: true, hidden: true, editoptions: {readonly: 'readonly'}},
-                {name:'nombre_titulo',index:'nombre_titulo', width:150,editable: true,editoptions:{size:"20"}, editrules: {required: true}},                
-                {name:'nivel_titulo',index:'nivel_titulo', width:100,editable: true,editoptions:{size:"20"}, editrules: {required: true}},
-                {name:'univ_titulo',index:'univ_titulo', width:100,editable: true,editoptions:{size:"20"}, editrules: {required: true}},
-                {name:'fecha_titulo',index:'fecha_titulo',width:90, editable:true, sorttype:"date",unformat: pickDate},
-                {name:'pais_titulo',index:'pais_titulo', width:100,editable: true,editoptions:{size:"20"}, editrules: {required: true}},
-                {name:'area_titulo',index:'area_titulo', width:100,editable: true,editoptions:{size:"20"}, editrules: {required: true}},
-                {name:'reg_titulo',index:'reg_titulo', width:100,editable: true,editoptions:{size:"20"}, editrules: {required: true}},
-                {name:'fecha_creacion',index:'fecha_creacion', width:100, editable: true, editoptions:{size:"20",maxlength:"30",readonly: 'readonly'}, editrules: {required: false}},
-            ], 
-            rowNum:10,
-            rowList:[10,20,30],
-            pager : pager_selector,
-            sortname: 'id_titulo',
-            sortorder: 'asc',
-            altRows: true,
-            multiselect: false,
-            multiboxonly: false,
-            viewrecords : true,
-            loadComplete : function() {
-                var table = this;
-                setTimeout(function(){
-                    styleCheckbox(table);
-                    updateActionIcons(table);
-                    updatePagerIcons(table);
-                    enableTooltips(table);
-                }, 0);
-            },
-
-            editurl: 'titulos.php',
-            caption: "TITULOS"
-        });
-        $(window).triggerHandler('resize.jqGrid');//cambiar el tamaño para hacer la rejilla conseguir el tamaño correcto
-
-        function aceSwitch( cellvalue, options, cell ) {
-            setTimeout(function(){
-                $(cell) .find('input[type=checkbox]')
-                .addClass('ace ace-switch ace-switch-5')
-                .after('<span class="lbl"></span>');
-            }, 0);
-        }
-        //enable datepicker
-        function pickDate( cellvalue, options, cell ) {
-            setTimeout(function(){
-                $(cell) .find('input[type=text]')
-                .datepicker({format:'yyyy-mm-dd' , autoclose:true}); 
-            }, 0);
-        }
-
-        //navButtons
-        jQuery(grid_selector).jqGrid('navGrid',pager_selector,
-        {   //navbar options
-            edit: true,
-            editicon : 'ace-icon fa fa-pencil blue',
-            add: true,
-            addicon : 'ace-icon fa fa-plus-circle purple',
-            del: false,
-            delicon : 'ace-icon fa fa-trash-o red',
-            search: true,
-            searchicon : 'ace-icon fa fa-search orange',
-            refresh: true,
-            refreshicon : 'ace-icon fa fa-refresh green',
-            view: true,
-            viewicon : 'ace-icon fa fa-search-plus grey'
-        },
-        {
-            closeAfterEdit: true,
-            recreateForm: true,
-            viewPagerButtons: false,
-            overlay:false,
-            beforeShowForm : function(e) {
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-                style_edit_form(form);
-            },
-            // afterSubmit: function (response) {
-            // if(response.responseText == 2) {
-            //         $.gritter.add({
-            //             title: 'Mensaje',
-            //             text: 'Registro Modificado correctamente <i class="ace-icon fa fa-spinner fa-spin green bigger-125"></i>',
-            //             time: 1000              
-            //         });
-            //         return true;
-            //     } else {
-            //         if(response.responseText == 3) { 
-            //             $("#nombre_idioma").val("");
-            //             return [false,"Error.. El idioma ya existe"];
-            //         }   
-            //     }
-            // },
-        },
-        {
-            closeAfterAdd: true,
-            recreateForm: true,
-            viewPagerButtons: false,
-            overlay:false,
-            beforeShowForm : function(e) {
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-                style_edit_form(form);
-            },
-            // afterSubmit: function (response) {
-            // if(response.responseText == 1) {
-            //         $.gritter.add({
-            //             title: 'Mensaje',
-            //             text: 'Registro Modificado correctamente <i class="ace-icon fa fa-spinner fa-spin green bigger-125"></i>',
-            //             time: 1000              
-            //         });
-            //         return true;
-            //     } else {
-            //         if(response.responseText == 3) { 
-            //             $("#nombre_idioma").val("");
-            //             return [false,"Error.. El idioma ya existe"];
-            //         }   
-            //     }
-            // },
-        },
-        {
-            //delete record form
-            recreateForm: true,
-            overlay:false,
-            beforeShowForm : function(e) {
-                var form = $(e[0]);
-                if(form.data('styled')) return false;
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-                style_delete_form(form);
-                form.data('styled', true);
-            },
-            onClick : function(e) {
-                //alert(1);
-            }
-        },
-        {
-              recreateForm: true,
-              overlay:false,
-            afterShowSearch: function(e) {
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-title').wrap('<div class="widget-header" />')
-                style_search_form(form);
-            },
-            afterRedraw: function(){
-                style_search_filters($(this));
-            }
-            ,
-            multipleSearch: false,
-          },
-        {
-            //view record form
-            recreateForm: true,
-            overlay:false,
-            beforeShowForm: function(e){
-                var form = $(e[0]);
-                form.closest('.ui-jqdialog').find('.ui-jqdialog-title').wrap('<div class="widget-header" />')
-            }
-        })
-
-        function style_edit_form(form) {
-            form.find('input[name=fecha_titulo]').datepicker({format:'yyyy-mm-dd' , autoclose:true})
-            form.find('input[name=stock]').addClass('ace ace-switch ace-switch-5').after('<span class="lbl"></span>');
-            var buttons = form.next().find('.EditButton .fm-button');
-            buttons.addClass('btn btn-sm').find('[class*="-icon"]').hide();//ui-icon, s-icon
-            buttons.eq(0).addClass('btn-primary').prepend('<i class="ace-icon fa fa-check"></i>');
-            buttons.eq(1).prepend('<i class="ace-icon fa fa-times"></i>')
-            
-            buttons = form.next().find('.navButton a');
-            buttons.find('.ui-icon').hide();
-            buttons.eq(0).append('<i class="ace-icon fa fa-chevron-left"></i>');
-            buttons.eq(1).append('<i class="ace-icon fa fa-chevron-right"></i>');       
-        }
-
-        function style_delete_form(form) {
-            var buttons = form.next().find('.EditButton .fm-button');
-            buttons.addClass('btn btn-sm btn-white btn-round').find('[class*="-icon"]').hide();//ui-icon, s-icon
-            buttons.eq(0).addClass('btn-danger').prepend('<i class="ace-icon fa fa-trash-o"></i>');
-            buttons.eq(1).addClass('btn-default').prepend('<i class="ace-icon fa fa-times"></i>')
-        }
-        
-        function style_search_filters(form) {
-            form.find('.delete-rule').val('X');
-            form.find('.add-rule').addClass('btn btn-xs btn-primary');
-            form.find('.add-group').addClass('btn btn-xs btn-success');
-            form.find('.delete-group').addClass('btn btn-xs btn-danger');
-        }
-
-        function style_search_form(form) {
-            var dialog = form.closest('.ui-jqdialog');
-            var buttons = dialog.find('.EditTable')
-            buttons.find('.EditButton a[id*="_reset"]').addClass('btn btn-sm btn-info').find('.ui-icon').attr('class', 'ace-icon fa fa-retweet');
-            buttons.find('.EditButton a[id*="_query"]').addClass('btn btn-sm btn-inverse').find('.ui-icon').attr('class', 'ace-icon fa fa-comment-o');
-            buttons.find('.EditButton a[id*="_search"]').addClass('btn btn-sm btn-purple').find('.ui-icon').attr('class', 'ace-icon fa fa-search');
-        }
-        
-        function beforeDeleteCallback(e) {
-            var form = $(e[0]);
-            if(form.data('styled')) return false;
-            
-            form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-            style_delete_form(form);
-            
-            form.data('styled', true);
-        }
-        
-        function beforeEditCallback(e) {
-            var form = $(e[0]);
-            form.closest('.ui-jqdialog').find('.ui-jqdialog-titlebar').wrapInner('<div class="widget-header" />')
-            style_edit_form(form);
-        }
-        function styleCheckbox(table) {
-        }
-        function updateActionIcons(table) {
-        }
-            
-        function updatePagerIcons(table) {
-            var replacement = 
-                {
-                'ui-icon-seek-first' : 'ace-icon fa fa-angle-double-left bigger-140',
-                'ui-icon-seek-prev' : 'ace-icon fa fa-angle-left bigger-140',
-                'ui-icon-seek-next' : 'ace-icon fa fa-angle-right bigger-140',
-                'ui-icon-seek-end' : 'ace-icon fa fa-angle-double-right bigger-140'
-            };
-            $('.ui-pg-table:not(.navtable) > tbody > tr > .ui-pg-button > .ui-icon').each(function(){
-                var icon = $(this);
-                var $class = $.trim(icon.attr('class').replace('ui-icon', ''));
-                
-                if($class in replacement) icon.attr('class', 'ui-icon '+replacement[$class]);
-            })
-        }
-
-        function enableTooltips(table) {
-            $('.navtable .ui-pg-button').tooltip({container:'body'});
-            $(table).find('.ui-pg-div').tooltip({container:'body'});
-        }
-
-            //var selr = jQuery(grid_selector).jqGrid('getGridParam','selrow');
-
-            $(document).one('ajaxloadstart.page', function(e) {
-                $(grid_selector).jqGrid('GridUnload');
-                $('.ui-jqdialog').remove();
-            });
-    });
-    // Fin tabla premios
 }
