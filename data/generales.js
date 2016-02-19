@@ -1,3 +1,4 @@
+
 function fecha_actual (input){
     var d = new Date();
     var strDate = d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();

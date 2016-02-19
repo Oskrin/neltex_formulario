@@ -630,7 +630,7 @@ function guardar_clientes(){
 					alert("Seleccione una ciudad antes de continuar");
 				}				
 			}else{
-				if($("#txt_11").val() != null){
+				if($("#txt_11").val() != null) {
 					datos_clientes(valores,"m",e);	
 				}else{
 					alert("Seleccione una ciudad antes de continuar");
