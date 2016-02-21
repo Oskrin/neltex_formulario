@@ -47,6 +47,7 @@ $cont1++;
 
 		<!-- text fonts -->
 		<link rel="stylesheet" href="../../dist/css/fontdc.css" />
+		<link rel="stylesheet" href="../../dist/css/jquery.gritter.min.css" />
 
 		<link rel="stylesheet" href="../../dist/css/ace.min.css" class="ace-main-stylesheet" id="main-ace-style" />
         <link type="text/css" rel="stylesheet" id="ace-skins-stylesheet" href="../../dist/css/ace-skins.min.css">
@@ -1307,7 +1308,11 @@ $cont1++;
 			if('ontouchstart' in document.documentElement) document.write("<script src='../../dist/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");
 		</script>
 
+		
+
 		<script src="../../dist/js/bootstrap.min.js"></script>
+
+		<script src="../../dist/js/jquery-ui.min.js"></script>
 		<script src="../../dist/js/jquery-ui.custom.min.js"></script>
 		<script src="../../dist/js/jquery.ui.touch-punch.min.js"></script>						
 		<script src="../../dist/js/chosen.jquery.min.js"></script>
@@ -1332,6 +1337,7 @@ $cont1++;
 		
 		<script src="../generales.js"></script>
 		<script src="formulario.js"></script>
+		<script src="../../dist/js/ventana_reporte.js" type="text/javascript"></script>
 		<!-- inline scripts related to this page -->
 	</body>
 </html>  

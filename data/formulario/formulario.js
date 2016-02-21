@@ -1,23 +1,30 @@
 $(document).on("ready",inicio);
 
-var id_aspiraste = "";
+function recargar() {
+  setTimeout(function() {
+    location.reload();
+  }, 2000);  
+}
+
+
 
 function guardar_formulario() {
 
     $.ajax({        
         type: "POST",
-        data: $("#validation-form-2").serialize() +"&"+ $("#validation-form-3").serialize() +"&"+ $("#validation-form-4").serialize(),                
+        data: $("#validation-form-2").serialize() +"&"+ $("#validation-form-3").serialize(),                
         url: "formulario.php",      
         success: function(data) { 
             if( data == 0 ) {
-                alert('Registro Guardado correctamente');
-                //$.gritter.add({
-                //  title: 'Información Mensaje',
-                //  text: ' <span class="fa fa-shield"></span>' + ' ' +'Factura Agregada Correctamente <span class="text-succes fa fa-spinner fa-spin"></span>'
-                //      ,
-                // sticky: false,
-                //  time: 1000,                       
-                //});
+
+                $.gritter.add({
+                  title: 'Información Mensaje',
+                  text: ' <span class="fa fa-shield"></span>' + ' ' +'Registro Guardado correctamente <span class="text-succes fa fa-spinner fa-spin"></span>'
+                      ,
+                 sticky: false,
+                 time: 2000,                       
+                });
+                recargar(); 
             }
         }
     }); 
