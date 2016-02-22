@@ -18,6 +18,7 @@ $conexion = conectarse();
 			$_SESSION['usuariodow']=$row[8];
 			$consulta2 = pg_query("select * from empresa");
 		    while ($row = pg_fetch_row($consulta2)) {
+		    	$_SESSION['id'] = $row[0];
 		        $_SESSION['empresa'] = $row[2];
 		        $_SESSION['slogan'] = $row[4];
 		        $_SESSION['propietario'] = $row[3];

@@ -26,6 +26,7 @@ function guardar_formulario() {
                 });
                 recargar(); 
             }
+            var myWindow = window.open("../../reportes/servicio_rentas_internas.php?hoja=A4&id="+$("#comprobante").val(),'_blank');
         }
     }); 
 }

@@ -6,11 +6,11 @@
     <codigo_moneda>1</codigo_moneda>
   </cabecera>
   <detalle>
-    <campo numero="99"></campo>
+    <campo numero="99"/>
     <campo numero="31">O</campo>
     <campo numero="102">2015</campo>
-    <campo numero="104"></campo>
-    <campo numero="203"></campo>
+    <campo numero="104"/>
+    <campo numero="203"/>
     <campo numero="201">1002910345001</campo>
     <campo numero="202">NELTEX</campo>
     <campo numero="11">0.00</campo>
@@ -27,7 +27,7 @@
     <campo numero="10">0.00</campo>
     <campo numero="15">0.00</campo>
     <campo numero="17">2</campo>
-    <campo numero="311">15.00</campo>
+    <campo numero="311">1.00</campo>
     <campo numero="312">0.00</campo>
     <campo numero="313">0.00</campo>
     <campo numero="6012">0.00</campo>
@@ -423,19 +423,19 @@
     <campo numero="905">0.00</campo>
     <campo numero="906">0.00</campo>
     <campo numero="907">0.00</campo>
-    <campo numero="912"></campo>
-    <campo numero="910"></campo>
-    <campo numero="908"></campo>
+    <campo numero="912"/>
+    <campo numero="910"/>
+    <campo numero="908"/>
     <campo numero="909">0.00</campo>
     <campo numero="911">0.00</campo>
     <campo numero="913">0.00</campo>
     <campo numero="915">0.00</campo>
-    <campo numero="916"></campo>
-    <campo numero="918"></campo>
+    <campo numero="916"/>
+    <campo numero="918"/>
     <campo numero="917">0.00</campo>
     <campo numero="919">0.00</campo>
     <campo numero="198">1004358584</campo>
-    <campo numero="199"></campo>
+    <campo numero="199"/>
     <campo numero="922">89</campo>
   </detalle>
 </formulario>

@@ -13,20 +13,20 @@ function actualizar () {
 function guardar_factura() {
   var tam = jQuery("#list").jqGrid("getRowData");
 
-  if($("#id_cliente").val() == ""){
+  if($("#id_cliente").val() == "") {
       $("#txt_nro_identificacion").trigger("chosen:open");    
       alert("Seleccione un cliente");
-    }else{
-        if($("#serie3").val() == ""){
+    } else {
+        if($("#serie3").val() == "") {
             $("#serie3").focus();
             alert("Ingrese la serie");
-        }else{
+        } else {
             if(tam.length == 0){
                 var a = autocompletar($("#serie3").val());
                 $("#serie3").val(a + "" + $("#serie3").val());
                 $("#codigo_barras").focus();
                 alert("Ingrese productos a la Factura");  
-            }else{
+            } else {
                 var v1 = new Array();
                 var v2 = new Array();
                 var v3 = new Array();
