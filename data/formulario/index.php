@@ -190,7 +190,7 @@ $cont1++;
 																					<div class="col-xs-12 col-sm-6">
 																						<div class="clearfix">
 																							<input type="text" name="311" id="311" placeholder="311" value="0.00" onkeydown="return Valida_punto(event)" />
-																							<input type="hidden" name="311" id="311" value="<?php echo $cont1 ?>"  />
+																							<input type="hidden" name="comprobante" id="comprobante" value="<?php echo $cont1 ?>"  />
 																						</div>
 																					</div>
 																				</div>

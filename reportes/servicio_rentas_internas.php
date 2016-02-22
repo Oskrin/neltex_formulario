@@ -68,14 +68,14 @@
     $pdf->SetX(25);
     $pdf->multiCell(130, 6, utf8_decode('201'),0 );//NOMBRE cliente 
     $pdf->Text(40, 101, utf8_decode('RUC'));//ruc cliente
-    $pdf->Text(170, 101, utf8_decode('2016' ));//fecha de emision cliente
+    $pdf->Text(170, 101, utf8_decode('1002910345001' ));//fecha de emision cliente
 
     $pdf->Rect(25, 105, 165, 10 , 'D');////3 INFO TRIBUTARIA
     $pdf->SetY(107);
     $pdf->SetX(25);
     $pdf->multiCell(130, 6, utf8_decode('202'),0 );//NOMBRE cliente 
     $pdf->Text(40, 111, utf8_decode('RAZÓN O DENOMUNACIÓN SOCIAL'));//ruc cliente
-    $pdf->Text(170, 111, utf8_decode('2016' ));//fecha de emision cliente
+    $pdf->Text(170, 111, utf8_decode('NELTEX' ));//fecha de emision cliente
 
     $pdf->Rect(25, 115, 165, 10 , 'D');////3 INFO TRIBUTARIA
     $pdf->SetY(117);
@@ -91,22 +91,14 @@
     $pdf->Text(40, 131, utf8_decode('Activo por reinversion de utilidades'));//ruc cliente
     $pdf->Text(170, 131, utf8_decode('2' ));//fecha de emision cliente
 
-    $pdf->Rect(25, 135, 165, 10 , 'D');////3 INFO TRIBUTARIA
-    $pdf->SetY(137);
-    $pdf->SetX(25);
-    $pdf->multiCell(130, 6, utf8_decode('496'),0 );//NOMBRE cliente 
-    $pdf->Text(40, 141, utf8_decode('Activo por reinversion de utilidades'));//ruc cliente
-    $pdf->Text(170, 141, utf8_decode('2' ));//fecha de emision cliente
-
-
-
+    //$pdf->Rect(25, 135, 165, 10 , 'D');////3 INFO TRIBUTARIA
+    //$pdf->SetY(137);
+    //$pdf->SetX(25);
+    //$pdf->multiCell(130, 6, utf8_decode('496'),0 );//NOMBRE cliente 
+    //$pdf->Text(40, 141, utf8_decode('Activo por reinversion de utilidades'));//ruc cliente
+    //$pdf->Text(170, 141, utf8_decode('2' ));//fecha de emision cliente
 
     //////////////////detalles /////////////
-
-
-
-
-   
-                                                     
+                                          
     $pdf->Output();
 ?>

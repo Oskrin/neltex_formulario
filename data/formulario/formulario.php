@@ -48,7 +48,7 @@
 	// general xml
 
 	// consulta empresa
-	$consulta3 = pg_query("select * from empresa where id_empresa = '09594354b7d5df18f18'");
+	$consulta3 = pg_query("select * from empresa where id_empresa = '".$_SESSION['id']."'");
 	while ($row = pg_fetch_row($consulta3)) {
 	 	$anio = $row[19];
 	 	$ruc_empresa = $row[1];
