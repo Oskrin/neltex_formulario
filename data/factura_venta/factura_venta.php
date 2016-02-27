@@ -21,7 +21,7 @@
 	// guardar factura venta
     $num_serie = "001-001-".$_POST['serie3'];
 
-	$sql = "insert into factura_venta values ('$id','".$_POST['id_cliente']."','".$id_session."','','".$_POST['fecha_actual']."','".$_POST['hora_actual']."','".$num_serie."','".$_POST['fecha_cancelacion']."','".$_POST['tipo']."','".$_POST['formas']."','".$_POST['termino_pago']."','".$_POST['tarifa0']."','".$_POST['tarifa12']."','".$_POST['iva']."','".$_POST['descuento_total']."','".$_POST['total']."','$fecha','Activo')";	
+	$sql = "insert into factura_venta values ('$id','".$_POST['id_cliente']."','".$id_session."','','".$_POST['fecha_actual']."','".$_POST['hora_actual']."','".$num_serie."','".$_POST['fecha_cancelacion']."','".$_POST['tipo']."','".$_POST['formas']."','".$_POST['termino_pago']."','".$_POST['tarifa0']."','".$_POST['tarifa12']."','".$_POST['iva']."','".$_POST['descuento_total']."','".$_POST['total']."','$fecha','Activo','".$_SESSION['id']."')";	
 	$guardar = guardarSql($conexion,$sql);
 
 	$sql_nuevo = "select (id_factura_venta,id_cliente,id_usuario,fecha_anulacion,fecha_actual,hora_actual,numero_serie,fecha_cancelacion,tipo_precio,id_forma_pago,id_termino_pago,tarifa0,tarifa12,iva,descuento,total,fecha_creacion,estado) from factura_venta where id_factura_venta = '$id'";        

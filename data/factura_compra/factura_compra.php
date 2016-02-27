@@ -14,7 +14,7 @@
 	$id = unique($fecha_larga);	
 		
     // guardar factura compra
-	$sql = "insert into factura_compra values ('$id','".$_POST['id_proveedor']."','$id_session','".$_POST['fecha_actual']."','".$_POST['hora_actual']."','".$_POST['fecha_registro']."','".$_POST['fecha_emision']."','".$_POST['fecha_caducidad']."','".$_POST['tipo_comprobante']."','".$_POST['serie']."','".$_POST['autorizacion']."','".$_POST['fecha_cancelacion']."','".$_POST['formas']."','".$_POST['termino_pago']."','".$_POST['tarifa0']."','".$_POST['tarifa12']."','".$_POST['iva']."','".$_POST['descuento_total']."','".$_POST['total']."','$fecha','Activo')";		
+	$sql = "insert into factura_compra values ('$id','".$_POST['id_proveedor']."','$id_session','".$_POST['fecha_actual']."','".$_POST['hora_actual']."','".$_POST['fecha_registro']."','".$_POST['fecha_emision']."','".$_POST['fecha_caducidad']."','".$_POST['tipo_comprobante']."','".$_POST['serie']."','".$_POST['autorizacion']."','".$_POST['fecha_cancelacion']."','".$_POST['formas']."','".$_POST['termino_pago']."','".$_POST['tarifa0']."','".$_POST['tarifa12']."','".$_POST['iva']."','".$_POST['descuento_total']."','".$_POST['total']."','$fecha','Activo','".$_SESSION['id']."')";		
 	$guardar = guardarSql($conexion,$sql);
 		
     // /datos detalle factura
@@ -40,7 +40,6 @@
         pg_query("insert into pagos_compra values('$id2','".$_POST['id_proveedor']."', '$id','".$id_session."','".$_POST['fecha_actual']."','".$_POST['total']."','".$_POST['total']."','Activo','$fecha')");
 	}// fin credito
 
-	
 	for ($i = 1; $i < $nelem; $i++) {		
 		$id3 = unique($fecha_larga);
 		$stock = 0;

@@ -12,7 +12,7 @@
 	$id_session = sesion_activa();///datos session
 	$id = unique($fecha_larga);
 
-	$sql = "insert into inventario values ('$id','$id_session','$fecha','$_POST[hora_actual]','Activo','$fecha')";	
+	$sql = "insert into inventario values ('$id','$id_session','$fecha','$_POST[hora_actual]','Activo','$fecha','".$_SESSION['id']."')";	
 		
 	$guardar = guardarSql($conexion,$sql);
 	if( $guardar == 'true'){
@@ -59,7 +59,5 @@
 		$sql_kardex = "insert into detalles_kardex values ('".$id_det_kardex."','".$id_kardex."','".$fecha."','".'Ajuste de Inventario con una diferencia de '.$arreglo4[$i]."','".$arreglo3[$i]."','".$arreglo5[$i]."','".$arreglo3[$i] * $arreglo5[$i]."','','','','".$arreglo3[$i]."','".$arreglo5[$i]."','".$arreglo3[$i] * $arreglo5[$i]."')";
 		$guardar = guardarSql($conexion, $sql_kardex);
 		////////////
-
-
-	   }
+	}
 ?>

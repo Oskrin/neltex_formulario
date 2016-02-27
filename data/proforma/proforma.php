@@ -17,7 +17,7 @@
 	$id = unique($fecha_larga);
 	
 	// guardar proforma
-	$sql = "insert into proforma values ('$id','".$_POST['id_cliente']."','".$id_session."','".$_POST['fecha_actual']."','".$_POST['hora_actual']."','".$_POST['tipo']."','".$_POST['tarifa0']."','".$_POST['tarifa12']."','".$_POST['iva']."','".$_POST['descuento_total']."','".$_POST['total']."','$fecha','Activo')";	
+	$sql = "insert into proforma values ('$id','".$_POST['id_cliente']."','".$id_session."','".$_POST['fecha_actual']."','".$_POST['hora_actual']."','".$_POST['tipo']."','".$_POST['tarifa0']."','".$_POST['tarifa12']."','".$_POST['iva']."','".$_POST['descuento_total']."','".$_POST['total']."','$fecha','Activo','".$_SESSION['id']."')";	
 	// fin
 
 	// datos detalle_proofrma
@@ -47,9 +47,9 @@
 }
 
 $guardar = guardarSql($conexion,$sql);
-if( $guardar == 'true'){
+if( $guardar == 'true') {
 	$data = 0; ////datos guardados
-}else{
+} else {
 	$data = 2; /// error al guardar
 }
 
