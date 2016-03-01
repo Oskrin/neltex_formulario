@@ -10,7 +10,7 @@ $search = $_GET['_search'];
 
 if (!$sidx)
     $sidx = 1;
-$result = pg_query("SELECT COUNT(*) AS count FROM pagos_venta");
+$result = pg_query("SELECT COUNT(*) AS count FROM pagos_compra");
 $row = pg_fetch_row($result);
 $count = $row[0];
 if ($count > 0 && $limit > 0) {
@@ -24,18 +24,18 @@ $start = $limit * $page - $limit;
 if ($start < 0)
     $start = 0;
 if ($search == 'false') {
-    $SQL = "SELECT P.id_pagos_venta, F.numero_serie, F.fecha_actual, P.monto_credito, P.saldo FROM pagos_venta P, factura_venta F, cliente C where P.id_factura_venta = F.id_factura_venta and P.estado = 'Activo' and C.id_cliente = P.id_cliente and C.id_cliente ='".$_GET['id_cliente']."' ORDER BY  $sidx $sord offset $start limit $limit";
+    $SQL = "SELECT P.id_pagos_compra, F.numero_serie, F.fecha_actual, P.monto_credito, P.saldo FROM pagos_compra P, factura_compra F, proveedor C where P.id_factura_compra = F.id_factura_compra and P.estado = 'Activo' and C.id_proveedor = P.id_proveedor and C.id_proveedor ='".$_GET['id_proveedor']."' ORDER BY  $sidx $sord offset $start limit $limit";
 } else {
     $campo = $_GET['searchField'];
   
     if ($_GET['searchOper'] == 'eq') {
-        $SQL = "SELECT P.id_pagos_venta, F.numero_serie, F.fecha_actual, P.monto_credito, P.saldo FROM pagos_venta P, factura_venta F, cliente C where P.id_factura_venta = F.id_factura_venta and P.estado = 'Activo' and C.id_cliente = P.id_cliente and C.id_cliente ='".$_GET['id_cliente']."'  and $campo = '$_GET[searchString]' ORDER BY $sidx $sord offset $start limit $limit";
+        $SQL = "SELECT P.id_pagos_compra, F.numero_serie, F.fecha_actual, P.monto_credito, P.saldo FROM pagos_compra P, factura_compra F, proveedor C where P.id_factura_compra = F.id_factura_compra and P.estado = 'Activo' and C.id_proveedor = P.id_proveedor and C.id_proveedor ='".$_GET['id_proveedor']."' and $campo = '$_GET[searchString]' ORDER BY $sidx $sord offset $start limit $limit";
     }         
     if ($_GET['searchOper'] == 'cn') {
-        $SQL = "SELECT P.id_pagos_venta, F.numero_serie, F.fecha_actual, P.monto_credito, P.saldo FROM pagos_venta P, factura_venta F, cliente C where P.id_factura_venta = F.id_factura_venta and P.estado = 'Activo' and C.id_cliente = P.id_cliente and C.id_cliente ='".$_GET['id_cliente']."'  and $campo like '%$_GET[searchString]%' ORDER BY $sidx $sord offset $start limit $limit";
+        $SQL = "SELECT P.id_pagos_compra, F.numero_serie, F.fecha_actual, P.monto_credito, P.saldo FROM pagos_compra P, factura_compra F, proveedor C where P.id_factura_compra = F.id_factura_compra and P.estado = 'Activo' and C.id_proveedor = P.id_proveedor and C.id_proveedor ='".$_GET['id_proveedor']."' and $campo like '%$_GET[searchString]%' ORDER BY $sidx $sord offset $start limit $limit";
     }
-  
 }
+
 $result = pg_query($SQL);
 header("Content-type: text/xml;charset=utf-8");
 $s = "<?xml version='1.0' encoding='utf-8'?>";

@@ -7,13 +7,13 @@ function recargar() {
 }
 
 function cargar_facturas(){
-    var id = $("#id_cliente").val();
+    var id = $("#id_proveedor").val();
     if (id == "") {
 
-        alert("Error... Seleccione un cliente");
+        alert("Error... Seleccione un proveedor");
     } else {
         $("#table2").jqGrid('setGridParam', {
-            url: 'xmlFacturasventas.php?id_cliente=' + id , 
+            url: 'xmlFacturascompras.php?id_proveedor=' + id , 
             datatype: 'xml'
         }).trigger('reloadGrid');
 
@@ -24,9 +24,9 @@ function cargar_facturas(){
 function guardar_pago() {
   var tam = jQuery("#list").jqGrid("getRowData");
 
-  if($("#id_cliente").val() == ""){
+  if($("#id_proveedor").val() == ""){
       $("#txt_nro_identificacion").trigger("chosen:open");
-       alert("Seleccione un cliente");
+       alert("Seleccione un proveedor");
     }else{
         if(tam.length == 0){
             alert("Ingrese un pago");  
@@ -48,7 +48,7 @@ function guardar_pago() {
             var fil = jQuery("#list").jqGrid("getRowData");
             for (var i = 0; i < fil.length; i++) {
                 var datos = fil[i];
-                v1[i] = datos['id_pagos_venta'];
+                v1[i] = datos['id_pagos_compra'];
                 v2[i] = datos['num_factura'];
                 v3[i] = datos['fecha_factura'];
                 v4[i] = datos['totalcxc'];
@@ -66,8 +66,8 @@ function guardar_pago() {
             
             $.ajax({
                 type: "POST",
-                url: "cuentas_cobrar.php",
-                data: $("#form_pagosVenta").serialize() + "&campo1=" + string_v1 + "&campo2=" + string_v2 + "&campo3=" + string_v3 + "&campo4=" + string_v4 + "&campo5=" + string_v5 + "&campo6=" + string_v6,
+                url: "cuentas_pagar.php",
+                data: $("#form_pagosCompra").serialize() + "&campo1=" + string_v1 + "&campo2=" + string_v2 + "&campo3=" + string_v3 + "&campo4=" + string_v4 + "&campo5=" + string_v5 + "&campo6=" + string_v6,
                 success: function(data) {
                     var val = data;
                     if (val == 0) {
@@ -86,7 +86,7 @@ function guardar_pago() {
     }
 }
 
-function inicio (){	
+function inicio () {	
   show();
 
   carga_forma_pago("formas");
@@ -121,150 +121,133 @@ function inicio (){
  	////////////////validaciones/////////////////
  	$("#valor_pagado").on("keypress",punto);
 
- 	/*----buscador cliente identificacion----*/
-	var input_ci = $("#txt_nro_identificacion_chosen").children().next().children();		
-	$(input_ci).on("keyup",function(input_ci){
-		var text = $(this).children().val();
-		if(text != "")  {
-			$.ajax({        
-		        type: "POST",
-		        dataType: 'json',        
-	    	    url: "../carga_ubicaciones.php?tipo=0&id=0&fun=13&val="+text,        
-	        	success: function(data, status) {
-	        		$('#txt_nro_identificacion').html("");	        	
-			        for (var i = 0; i < data.length; i=i+6) {            				            		            	
-			        	appendToChosen_cliente(data[i],data[i+1],text,data[i+2],data[i+3],data[i+4],data[i+5],"txt_nro_identificacion","txt_nro_identificacion_chosen");
-			        }		        
-		    	    $('#txt_nombre_cliente').html("");
-		        	$('#txt_nombre_cliente').append($("<option data-extra='"+data[1]+"' data-direccion='"+data[3]+"' data-telefono='"+data[4]+"' data-email='"+data[5]+"'></option>").val(data[0]).html(data[2])).trigger('chosen:updated');                    
-			        $("#id_cliente").val(data[0]);		        
-    					$('#lbl_client_telefono').val(data[4]);
-    					$('#lbl_client_correo').val(data[5]);
-    					$('#lbl_client_direccion').val(data[3]);
-			    },
-			    error: function (data) {
-			        console.log(data)
-		    	}	        
-		    });
-	    }	  
-	});
+    /*buscador de ci proveedor*/
+  var input_ci = $("#txt_nro_identificacion_chosen").children().next().children();    
+  $(input_ci).on("keyup",function(input_ci){
+    var text = $(this).children().val();
+    if(text != ""){
+      $.ajax({        
+        type: "POST",
+        dataType: 'json',        
+        url: "../carga_ubicaciones.php?tipo=0&id=0&fun=12&val="+text,        
+        success: function(data, status) {
+          $('#txt_nro_identificacion').html("");            
+          for (var i = 0; i < data.length; i=i+3) {                                                 
+            appendToChosen(data[i],data[i+1],text,data[i+2],"txt_nro_identificacion","txt_nro_identificacion_chosen");
+          }           
+          $('#txt_nombre_proveedor').html("");
+          $('#txt_nombre_proveedor').append($("<option data-extra='"+data[1]+"'></option>").val(data[0]).html(data[2])).trigger('chosen:updated');                    
+          $("#id_proveedor").val(data[0])            
+        },
+        error: function (data) {            
+        }         
+      });
+    }
+  }); 
 
+  /*eventos change del chosen*/
+  $("#txt_nro_identificacion").chosen().change(function (event,params) {
+    if(params == undefined){      
+      $('#txt_nro_identificacion').html("");
+      $('#txt_nro_identificacion').append($("<option></option>"));          
+      $('#txt_nro_identificacion').trigger('chosen:updated')
+      $('#txt_nombre_proveedor').html("");
+      $('#txt_nombre_proveedor').append($("<option></option>"));          
+      $('#txt_nombre_proveedor').trigger('chosen:updated');     
+      $("#id_proveedor").val("");            
+    }else{        
+      var a = $("#txt_nro_identificacion option:selected");            
+      $('#txt_nombre_proveedor').html("");
+      $('#txt_nombre_proveedor').append($("<option data-extra='"+$(a).text()+"'></option>").val($(a).val()).html($(a).data("extra"))).trigger('chosen:updated');
+      $("#id_proveedor").val($(a).val());
+    }
+  }); 
+  // fin
 
-	$("#txt_nro_identificacion").chosen().change(function (event,params){
-		if(params == undefined){			
-			$('#txt_nro_identificacion').html("");
-			$('#txt_nro_identificacion').append($("<option></option>"));    			
-			$('#txt_nro_identificacion').trigger('chosen:updated')
-			$('#txt_nombre_cliente').html("");
-			$('#txt_nombre_cliente').append($("<option></option>"));    			
-			$('#txt_nombre_cliente').trigger('chosen:updated')
-			$("#id_cliente").val("");		        
-			$('#lbl_client_telefono').val("");
-			$('#lbl_client_correo').val("");
-			$('#lbl_client_direccion').val("");
-		}else{
-			var a = $("#txt_nro_identificacion option:selected");            
-      		$('#txt_nombre_cliente').html("");
-      		$('#txt_nombre_cliente').append($("<option data-extra='"+$(a).text()+"' data-direccion='"+$(a).data("direccion")+"' data-telefono='"+$(a).data("telefono")+"' data-email='"+$(a).data("email")+"'></option>").val($(a).val()).html($(a).data("extra"))).trigger('chosen:updated');      		
-      		$("#id_cliente").val($(a).val());		        
-    			$('#lbl_client_telefono').val($(a).data("telefono"));
-    			$('#lbl_client_correo').val($(a).data("email"));
-    			$('#lbl_client_direccion').val($(a).data("direccion"));
-		}
-	});
+  /*buscador del nombre del proveedor*/
+  var input_nombre = $("#txt_nombre_proveedor_chosen").children().next().children();    
+  $(input_nombre).on("keyup",function(input_ci){
+    var text = $(this).children().val();
+    if(text != ""){
+     $.ajax({        
+          type: "POST",
+          dataType: 'json',        
+          url: "../carga_ubicaciones.php?tipo=0&id=0&fun=14&val="+text,        
+          success: function(data, status) {
+            $('#txt_nombre_proveedor').html("");            
+            for (var i = 0; i < data.length; i=i+3) {                                                 
+              appendToChosen(data[i],data[i+1],text,data[i+2],"txt_nombre_proveedor","txt_nombre_proveedor_chosen");
+            }           
+            $('#txt_nro_identificacion').html("");
+            $('#txt_nro_identificacion').append($("<option data-extra='"+data[1]+"'></option>").val(data[0]).html(data[2])).trigger('chosen:updated');                    
+            $("#id_proveedor").val(data[0])            
+        },
+        error: function (data) {
+        }         
+      });
+    }
+  }); 
 
-	/*----buscador nombre cliente----*/
-	var input_ci = $("#txt_nombre_cliente_chosen").children().next().children();		
-	$(input_ci).on("keyup",function(input_ci){
-		var text = $(this).children().val();
-		if(text != ""){
-			$.ajax({        
-		        type: "POST",
-		        dataType: 'json',        
-	    	    url: "../carga_ubicaciones.php?tipo=0&id=0&fun=18&val="+text,        
-	        	success: function(data, status) {
-	        		$('#txt_nombre_cliente').html("");	        	
-			        for (var i = 0; i < data.length; i=i+6) {            				            		            	
-			        	appendToChosen_cliente(data[i],data[i+2],text,data[i+1],data[i+3],data[i+4],data[i+5],"txt_nombre_cliente","txt_nombre_cliente_chosen");                
-			        }		        
-		    	    $('#txt_nro_identificacion').html("");
-		        	$('#txt_nro_identificacion').append($("<option data-extra='"+data[2]+"' data-direccion='"+data[3]+"' data-telefono='"+data[4]+"' data-email='"+data[5]+"'></option>").val(data[0]).html(data[1])).trigger('chosen:updated');                    
-			        $("#id_cliente").val(data[0]);		        					
-              $('#lbl_client_telefono').val(data[4]);
-              $('#lbl_client_correo').val(data[5]);
-              $('#lbl_client_direccion').val(data[3]);
-			    },
-			    error: function (data) {
-			        console.log(data)
-		    	}	        
-		    });
-	    }	  
-	});
-	$("#txt_nombre_cliente").chosen().change(function (event,params){
-		if(params == undefined){			
-			$('#txt_nro_identificacion').html("");
-			$('#txt_nro_identificacion').append($("<option></option>"));    			
-			$('#txt_nro_identificacion').trigger('chosen:updated')
-			$('#txt_nombre_cliente').html("");
-			$('#txt_nombre_cliente').append($("<option></option>"));    			
-			$('#txt_nombre_cliente').trigger('chosen:updated')
-			$("#id_cliente").val("");		        
-			$('#lbl_client_telefono').val("");
-			$('#lbl_client_correo').val("");
-			$('#lbl_client_direccion').val("");
-		}else{
-			var a = $("#txt_nombre_cliente option:selected");            
-      		$('#txt_nro_identificacion').html("");
-      		$('#txt_nro_identificacion').append($("<option data-extra='"+$(a).text()+"' data-direccion='"+$(a).data("direccion")+"' data-telefono='"+$(a).data("telefono")+"' data-email='"+$(a).data("email")+"'></option>").val($(a).val()).html($(a).data("extra"))).trigger('chosen:updated');      		
-      		$("#id_cliente").val($(a).val());		        
-			$('#lbl_client_telefono').val($(a).data("telefono"));
-			$('#lbl_client_correo').val($(a).data("email"));
-			$('#lbl_client_direccion').val($(a).data("direccion"));
-		}
-	});
-    /////////////////////////////////////////////////////////
-  	/*---agregar a la tabla---*/
+  $("#txt_nombre_proveedor").chosen().change(function (event, params) {    
+    if(params == undefined){      
+      $('#txt_nro_identificacion').html("");
+      $('#txt_nro_identificacion').append($("<option></option>"));          
+      $('#txt_nro_identificacion').trigger('chosen:updated')
+      $('#txt_nombre_proveedor').html("");
+      $('#txt_nombre_proveedor').append($("<option></option>"));          
+      $('#txt_nombre_proveedor').trigger('chosen:updated');     
+      $("#id_proveedor").val("")            
+    }else{        
+      var a = $("#txt_nombre_proveedor option:selected");            
+      $('#txt_nro_identificacion').html("");
+      $('#txt_nro_identificacion').append($("<option data-extra='"+$(a).text()+"'></option>").val($(a).val()).html($(a).data("extra"))).trigger('chosen:updated');
+      $("#id_proveedor").val($(a).val());
+    }
+  });   
+  // fin
 
-  	$("#valor_pagado").on("keypress",function (e) {
-        if(e.keyCode == 13) {
-            if($("#id_pagos_venta").val() != "") {
-                if(parseFloat($("#valor_pagado").val()) <= parseFloat($("#saldo2").val())) {
-                    $("#list").jqGrid("clearGridData", true);
+	/*---agregar a la tabla---*/
 
-                    var filas = jQuery("#list").jqGrid("getRowData");
+	$("#valor_pagado").on("keypress",function (e) {
+      if(e.keyCode == 13) {
+          if($("#id_pagos_compra").val() != "") {
+              if(parseFloat($("#valor_pagado").val()) <= parseFloat($("#saldo2").val())) {
+                  $("#list").jqGrid("clearGridData", true);
 
-                    if (filas.length === 0) {
-                        var su = 0;
-                        var saldo = 0;
-                        var valor = parseFloat($("#valor_pagado").val());
-                        var entero = ((valor).toFixed(2));
-                        saldo = (parseFloat($("#saldo2").val()) - parseFloat($("#valor_pagado").val()));
-                        var entero2 = ((saldo).toFixed(2));
+                  var filas = jQuery("#list").jqGrid("getRowData");
 
-                        var datarow = {id_pagos_venta: $("#id_pagos_venta").val(), num_factura: $("#num_factura").val(), fecha_factura: $("#fecha_factura").val(), totalcxc: $("#totalcxc").val(), valor_pagado: entero, saldo: entero2};
-                        su = jQuery("#list").jqGrid('addRowData', $("#id_pagos_venta").val(), datarow);
-                    }
+                  if (filas.length === 0) {
+                      var su = 0;
+                      var saldo = 0;
+                      var valor = parseFloat($("#valor_pagado").val());
+                      var entero = ((valor).toFixed(2));
+                      saldo = (parseFloat($("#saldo2").val()) - parseFloat($("#valor_pagado").val()));
+                      var entero2 = ((saldo).toFixed(2));
 
-                    // limpiar
-                    $("#id_pagos_venta").val("");
-                    $("#num_factura").val("");
-                    $("#fecha_factura").val("");
-                    $("#totalcxc").val("");
-                    $("#valor_pagado").val("");
-                    $("#saldo2").val("");
+                      var datarow = {id_pagos_compra: $("#id_pagos_compra").val(), num_factura: $("#num_factura").val(), fecha_factura: $("#fecha_factura").val(), totalcxc: $("#totalcxc").val(), valor_pagado: entero, saldo: entero2};
+                      su = jQuery("#list").jqGrid('addRowData', $("#id_pagos_compra").val(), datarow);
+                  }
 
-                } else{
-                  alert("Error... Valor excedió al saldo");  
-                }
-            } else {
-                alert("Seleccione una Factura");
-            }
-        }    
-	});
+                  // limpiar
+                  $("#id_pagos_compra").val("");
+                  $("#num_factura").val("");
+                  $("#fecha_factura").val("");
+                  $("#totalcxc").val("");
+                  $("#valor_pagado").val("");
+                  $("#saldo2").val("");
+
+              } else{
+                alert("Error... Valor excedió al saldo");  
+              }
+          } else {
+              alert("Seleccione una Factura");
+          }
+      }    
+});
+
 /*-----guardar factura compra--*/
-  $("#btn_0").on("click", guardar_pago);
-  $("#btn_01").on("click", cargar_facturas);
-
+$("#btn_0").on("click", guardar_pago);
+$("#btn_01").on("click", cargar_facturas);
 
 // tabla pagos
 jQuery("#list").jqGrid({          
@@ -274,7 +257,7 @@ colModel:[
     {name: 'myac', width: 50, fixed: true, sortable: false, resize: false, formatter: 'actions',
           formatoptions: {keys: false, delbutton: true, editbutton: false}
       },     
-    {name: 'id_pagos_venta', index: 'id_pagos_venta', editable: false, search: false, hidden: false, editrules: {edithidden: false}, align: 'center',frozen: true, width: 50},
+    {name: 'id_pagos_compra', index: 'id_pagos_compra', editable: false, search: false, hidden: false, editrules: {edithidden: false}, align: 'center',frozen: true, width: 50},
     {name: 'num_factura', index: 'num_factura', editable: false, search: false, hidden: false, editrules: {edithidden: false}, align: 'center',frozen: true, width: 150},
     {name: 'fecha_factura', index: 'fecha_factura', editable: false, frozen: true, editrules: {required: true}, align: 'center', width: 150},
     {name: 'totalcxc', index: 'totalcxc', editable: false, frozen: true, editrules: {required: true}, align: 'center', width: 70},
@@ -334,10 +317,10 @@ colModel:[
 
         jQuery(grid_selector).jqGrid({          
             datatype: "xml",
-            url: 'xmlFacturasventas.php',        
+            url: 'xmlFacturascompras.php',        
             colNames: ['ID', 'Factura a Pagar', 'Fecha Factura', 'Monto Total', 'Valor a Pagar', 'Saldo'],
                 colModel: [
-                {name: 'id_pagos_venta', index: 'id_pagos_venta', editable: false, search: false, hidden: true, editrules: {edithidden: false}, align: 'center',frozen: true, width: 50},
+                {name: 'id_pagos_compra', index: 'id_pagos_compra', editable: false, search: false, hidden: true, editrules: {edithidden: false}, align: 'center',frozen: true, width: 50},
                 {name: 'num_factura', index: 'num_factura', editable: false, search: false, hidden: false, editrules: {edithidden: false}, align: 'center', frozen: true, width: 180},
                 {name: 'fecha_factura', index: 'fecha_factura', editable: true, frozen: true, hidden: false, editrules: {required: true}, align: 'center', width: 150},
                 {name: 'totalcxc', index: 'totalcxc', editable: true, search: false, frozen: true, hidden: false, editrules: {required: true}, align: 'center', width: 110},
@@ -350,7 +333,7 @@ colModel:[
             height:200,
             rowList: [10,20,30],
             pager: pager_selector,        
-            sortname: 'id_pagos_venta',
+            sortname: 'id_pagos_compra',
             sortorder: 'asc',          
             altRows: true,
             multiselect: false,
@@ -369,30 +352,11 @@ colModel:[
                 var gsr = jQuery(grid_selector).jqGrid('getGridParam','selrow');                                              
                 var ret = jQuery(grid_selector).jqGrid('getRowData',gsr); 
 
-                $("#id_pagos_venta").val(ret.id_pagos_venta);
+                $("#id_pagos_compra").val(ret.id_pagos_compra);
                 $("#num_factura").val(ret.num_factura);
                 $("#fecha_factura").val(ret.fecha_factura);
                 $("#totalcxc").val(ret.totalcxc);
                 $("#saldo2").val(ret.saldo); 
-
-                $("#tablaNuevo tbody").empty(); 
-
-                $.ajax({
-                    type: "POST",
-                    url: "buscar_pagos.php",    
-                    data: "id=" + ret.id_pagos_venta,
-                    dataType: 'json',
-                    success: function(response) {
-                    $("#tablaNuevo").css('display','inline-table');
-                    for (var i = 0; i < response.length; i=i+3) {
-                            $("#tablaNuevo tbody").append( "<tr>" +
-                            "<td align=center >" + response[i+0] + "</td>" +
-                            "<td align=center>" + response[i+1] + "</td>" +             
-                            "<td align=center>" + response[i+2] + "</td>" +                         
-                           "<tr>");                    
-                        }
-                   }                    
-               });
                 $('#modal_facturas').modal('hide');                 
             }
         });

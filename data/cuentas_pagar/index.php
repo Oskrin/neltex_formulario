@@ -53,7 +53,7 @@ $conexion = conectarse();
                                 <a href="../inicio/">Inicio</a>
                             </li>
                             <li class="active">Procesos</li>
-                            <li class="active">Cuentas Cobrar</li>
+                            <li class="active">Cuentas Pagar</li>
                         </ul>
                     </div>
                     
@@ -62,7 +62,7 @@ $conexion = conectarse();
 							<div class="col-xs-12 col-sm-12 widget-container-col">
 								<div class="widget-box">
 									<div class="widget-header">
-										<h5 class="widget-title">Cuentas Cobrar</h5>
+										<h5 class="widget-title">Cuentas Pagar</h5>
 										<div class="widget-toolbar">
 											<a href="#" data-action="fullscreen" class="orange2">
 												<i class="ace-icon fa fa-expand"></i>
@@ -75,7 +75,7 @@ $conexion = conectarse();
 									<div class="widget-body">
 										<div class="widget-main">
 											<div class="row">
-												<form class="form-horizontal" role="form" rol="form" action="" method="POST" id="form_pagosVenta">	
+												<form class="form-horizontal" role="form" rol="form" action="" method="POST" id="form_pagosCompra">	
 													<div class="row">
 														<div class="col-md-12 pull-right">
 															<div class="col-md-4">
@@ -119,7 +119,7 @@ $conexion = conectarse();
 																<div class="form-group">
 																	<label class="col-sm-6 no-padding-right" for="txt_nro_identificacion"> Cédula de Identidad o Ruc: <font color="red">*</font></label>
 																	<div class="col-sm-6">
-																	<input type="hidden" id="id_cliente" name="id_cliente">																				
+																	<input type="hidden" id="id_proveedor" name="id_proveedor">																				
 																		<select class="chosen-select form-control" id="txt_nro_identificacion" name="txt_nro_identificacion" data-placeholder="Nro de identifiación">	     
 	                                                                        <option value=""></option>	                                                                        
 	                                                                    </select>
@@ -129,45 +129,14 @@ $conexion = conectarse();
 
 															<div class="col-md-7">
 																<div class="form-group">
-																	<label class="col-sm-5 control-label no-padding-right" for="txt_nombre_cliente"> Nombres Completos: <font color="red">*</font></label>
+																	<label class="col-sm-5 control-label no-padding-right" for="txt_nombre_proveedor"> Proveedor: <font color="red">*</font></label>
 																	<div class="col-sm-7">
-																		<select class="chosen-select form-control" id="txt_nombre_cliente" name="txt_nombre_cliente" data-placeholder="Nombres Completos">	                                                                        
+																		<select class="chosen-select form-control" id="txt_nombre_proveedor" name="txt_nombre_proveedor" data-placeholder="Nombres Completos">	                                                                        
 	                                                                        <option value=""> </option>	                                                                        
 	                                                                    </select>
 																	</div>																													
 																</div>																												
 															</div>
-														</div>
-													</div>
-
-													<div class="row">	
-														<div class="col-md-12">
-															<div class="col-md-4">																		
-																<div class="form-group">
-																	<label class="col-sm-4 no-padding-right" for="form-field-1"> Dirección: </label>
-																	<div class="col-sm-8">
-																		<input type="text" id="lbl_client_direccion" name="lbl_client_direccion" class="form-control" readonly data-toggle="tooltip"  value="" /> 
-																	</div>																													
-																</div>																												
-															</div>
-
-															<div class="col-md-4">																		
-																<div class="form-group">
-																	<label class="col-sm-4 no-padding-right" for="form-field-1"> Teléfono:</label>
-																	<div class="col-sm-8">
-																	    <input type="text" id="lbl_client_telefono" name="lbl_client_telefono" class="form-control" readonly data-toggle="tooltip"  value="" /> 
-																	</div>																													
-																</div>																												
-															</div>
-
-															<div class="col-md-4">																		
-																<div class="form-group">
-																	<label class="col-sm-3 no-padding-right" for="form-field-1"> Correo:</label>
-																	<div class="col-sm-9">
-																		<input type="text" id="lbl_client_correo" name="lbl_client_correo" class="form-control" readonly data-toggle="tooltip"  value="" /> 
-																	</div>																													
-																</div>																												
-															</div>																
 														</div>
 													</div>
 
@@ -222,7 +191,7 @@ $conexion = conectarse();
 															<div class="col-xs-2">
 																<div class="row">
 																	<div class="col-xs-12">
-																		<label>Total CxC:</label>
+																		<label>Total CxP:</label>
 																	</div>
 																</div>
 																<div class="row">
@@ -254,7 +223,7 @@ $conexion = conectarse();
 																<div class="row">
 																	<div class="col-xs-12">
 																		<input type="text" id="saldo2" name="saldo2" readonly class="form-control" data-toggle="tooltip"  /> 
-																		<input type="hidden" id="id_pagos_venta" name="id_pagos_venta" readonly class="form-control" data-toggle="tooltip"  /> 
+																		<input type="hidden" id="id_pagos_compra" name="id_pagos_compra" readonly class="form-control" data-toggle="tooltip"  /> 
 																	</div>
 																</div>
 															</div>
@@ -276,13 +245,6 @@ $conexion = conectarse();
 																		Pagos
 																	</a>
 																</li>
-
-																<li class="">
-																	<a data-toggle="tab" href="#fecha">
-																		<i class="green ace-icon fa fa-money bigger-120"></i>
-																		Fecha Pagos
-																	</a>
-																</li>
 															</ul>
 
 															<div class="tab-content">
@@ -292,27 +254,6 @@ $conexion = conectarse();
 											                                <table id="list"></table>
 											                            </div>
 											                        </div>
-											                    </div>
-
-											                    <div id="fecha" class="tab-pane">
-											                    	<row>
-											                    		<div class="col-md-12">
-											                    			<div class="col-md-6">
-														                    	<table id="tablaNuevo" class="table table-striped table-bordered"  >
-												                                    <thead>
-												                                        <tr>
-												                                            <th style="width: 280px">Fecha Pagos</th>
-												                                            <th style="width: 200px">Monto</th>
-												                                            <th style="width: 200px">Saldo</th>
-												                                        </tr>   
-												                                    </thead>
-												                                    <tbody>
-												                                        <tr></tr>
-												                                    </tbody>
-												                                </table>
-												                            </div>    
-											                            </div>
-										                            </row>    
 											                    </div>
 										                    </div>    
 									                    </div>    
@@ -472,7 +413,7 @@ $conexion = conectarse();
         <script src="../../dist/js/bootstrap-multiselect.min.js"></script>
 		
 		<script src="../generales.js"></script>
-		<script src="cuentas_cobrar.js"></script>
+		<script src="cuentas_pagar.js"></script>
 		<script src="../../dist/js/validCampoFranz.js" ></script>
 		<script src="../../dist/js/jquery.gritter.min.js"></script>
 		<script src="../../dist/js/ventana_reporte.js" type="text/javascript"></script>
