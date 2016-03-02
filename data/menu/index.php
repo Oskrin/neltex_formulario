@@ -1532,7 +1532,20 @@ function menu_lateral(){
 					Cuentas
 				</a>
 				<b class="arrow"></b>
-			</li>';	
+			</li>';
+
+			print '<li ';
+				if ($acus[3]=='periodo') {				
+					print('class="hover active"');
+				}else print('class="hover"');
+			print'>
+				<a href="../periodo/">
+					<i class="menu-icon fa fa-caret-right"></i>
+					Periodos
+				</a>
+				<b class="arrow"></b>
+			</li>';
+
 			print '</ul>
 		</li>';		
 
