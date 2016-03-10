@@ -1067,9 +1067,7 @@ jQuery(function($) {
                 
             form.data('styled', true);
         },
-        onClick : function(e) {
-            //alert(1);
-        }
+        onClick : function(e) { }
     },
     {
           recreateForm: true,
@@ -1125,6 +1123,7 @@ jQuery(function($) {
         form.find('.add-group').addClass('btn btn-xs btn-success');
         form.find('.delete-group').addClass('btn btn-xs btn-danger');
     }
+
     function style_search_form(form) {
         var dialog = form.closest('.ui-jqdialog');
         var buttons = dialog.find('.EditTable')

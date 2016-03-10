@@ -27,6 +27,24 @@ while ($row = pg_fetch_row($consulta2)) {
 }
 $cont1++;
 
+$consulta_tarifa= pg_query("select sum(F.tarifa12::float) from factura_venta  F");
+while ($row = pg_fetch_row($consulta_tarifa)) {
+      $tarifa12 = $row[0];
+}
+
+$consulta_sueldos= pg_query("select sum(T.valor_pagado::float) from tabla_pagos  T");
+while ($row = pg_fetch_row($consulta_sueldos)) {
+      $valor_pagado = $row[0];
+}
+
+$consulta_compras= pg_query("select sum(T.total::float) from factura_compra  T ");
+while ($row = pg_fetch_row($consulta_compras)) {
+      $compras = $row[0];
+}
+
+
+$total_costos = $valor_pagado + $compras;
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -706,7 +724,7 @@ $cont1++;
 																					<label class="control-label col-xs-12 col-sm-6 no-padding-right" for="6011">Ventas netas locales gravadas con tarifa 12% 6011:</label>
 																					<div class="col-xs-12 col-sm-6">
 																						<div class="clearfix">
-																							<input type="text" name="6011" id="6011" placeholder="6011" value="0.00" onkeydown="return Valida_punto(event)" />
+																							<input type="text" name="6011" id="6011" placeholder="6011" value="<?php echo $tarifa12?>" onkeydown="return Valida_punto(event)" />
 																						</div>
 																					</div>
 																				</div>
@@ -739,7 +757,7 @@ $cont1++;
 																					<label class="control-label col-xs-12 col-sm-6 no-padding-right" for="6999">TOTAL INGRESOS 6999:</label>
 																					<div class="col-xs-12 col-sm-6">
 																						<div class="clearfix">
-																							<input type="text" name="6999" id="6999" placeholder="6999" value="0.00" onkeydown="return Valida_punto(event)" />
+																							<input type="text" name="6999" id="6999" placeholder="6999" value="<?php echo $tarifa12?>" onkeydown="return Valida_punto(event)" />
 																						</div>
 																					</div>
 																				</div>
@@ -763,7 +781,7 @@ $cont1++;
 																					<label class="control-label col-xs-12 col-sm-6 no-padding-right" for="7061">Compras netas locales de materia prima 7061:</label>
 																					<div class="col-xs-12 col-sm-6">
 																						<div class="clearfix">
-																							<input type="text" name="7061" id="7061" placeholder="7061" value="0.00" onkeydown="return Valida_punto(event)" />
+																							<input type="text" name="7061" id="7061" placeholder="7061" value="<?php echo $compras ?>" onkeydown="return Valida_punto(event)" />
 																						</div>
 																					</div>
 																				</div>
@@ -844,7 +862,7 @@ $cont1++;
 																					<label class="control-label col-xs-12 col-sm-4 no-padding-right" for="">contituyen materia gravada del IESS:</label>
 																					<div class="col-xs-12 col-sm-8">
 																						<div class="clearfix">
-																							<input type="text" name="7131" id="7131" placeholder="7131" value="0.00" onkeydown="return Valida_punto(event)" />
+																							<input type="text" name="7131" id="7131" placeholder="7131" value="<?php echo $valor_pagado ?>" onkeydown="return Valida_punto(event)" />
 																							<input type="text" name="7132" id="7132" placeholder="7132" value="0.00" onkeydown="return Valida_punto(event)" />
 																						</div>
 																					</div>
@@ -1094,7 +1112,7 @@ $cont1++;
 																					<label class="control-label col-xs-12 col-sm-6 no-padding-right" for="7992">TOTAL GASTOS 7992:</label>
 																					<div class="col-xs-12 col-sm-6">
 																						<div class="clearfix">
-																							<input type="text" name="7992" id="7992" placeholder="7992" value="0.00" onkeydown="return Valida_punto(event)" />
+																							<input type="text" name="7992" id="7992" placeholder="7992" value="<?php echo $total_costos ?>" onkeydown="return Valida_punto(event)" />
 																						</div>
 																					</div>
 																				</div>
@@ -1105,7 +1123,7 @@ $cont1++;
 																					<label class="control-label col-xs-12 col-sm-6 no-padding-right" for="7999">TOTAL COSTOS Y GASTOS 7999:</label>
 																					<div class="col-xs-12 col-sm-6">
 																						<div class="clearfix">
-																							<input type="text" name="7999" id="7999" placeholder="7999" value="0.00" onkeydown="return Valida_punto(event)" />
+																							<input type="text" name="7999" id="7999" placeholder="7999" value="<?php echo $total_costos ?>" onkeydown="return Valida_punto(event)" />
 																						</div>
 																					</div>
 																				</div>

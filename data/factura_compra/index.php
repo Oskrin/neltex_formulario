@@ -79,7 +79,7 @@
 																	</li>
 																</ul>
 
-																<form class="form-horizontal" role="form" rol="form" action="" method="POST" id="form_facturaCompra">
+																<form class="form-horizontal" rol="form" action="" method="POST" id="form_facturaCompra">
 																	<div class="tab-content">
 																		<div id="factura" class="tab-pane fade in active">
 																			<div class="row">

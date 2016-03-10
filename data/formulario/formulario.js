@@ -6,8 +6,6 @@ function recargar() {
   }, 2000);  
 }
 
-
-
 function guardar_formulario() {
 
     $.ajax({        
