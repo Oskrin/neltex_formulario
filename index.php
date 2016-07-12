@@ -39,8 +39,11 @@ sti
 			<div class="main-content">
 				<div class="row">
 					<div class="col-sm-10 col-sm-offset-1">
-						<div class="login-container">							
-							<div class="center animated bounceInRight"><img src="dist/images/banner.fw.png"></div>
+						<div class="login-container">	
+							<h1>
+								<span class="center animated bounceInRight white" id="id-text2">NELTEX</span>
+							</h1>						
+							<!-- <div class="center animated bounceInRight"><img src="dist/images/banner.fw.png"></div> -->
 
 							<div id="obj_animacion" class="position-relative">
 								<div id="login-box" class="login-box visible widget-box no-border animated bounceInLeft">

@@ -18,7 +18,7 @@
 	        if( event_name === 'sidebar_collapsed' || event_name === 'main_container_fixed' ) {
 	            //para dar tiempo a los cambios de DOM y luego volver a dibujar!!!
 	            setTimeout(function() {
-	                $(grid_selector).jqGrid( 'setGridWidth', parent_column.width() );
+	                $(grid_selector).jqGrid('setGridWidth', parent_column.width());
 	            }, 0);
 	        }
 	    })

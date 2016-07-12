@@ -10,6 +10,7 @@ $fecha_larga = date('His', time());
 $sql = "";
 $id = unique($fecha_larga);
 $id_user = sesion_activa();
+
 if ($_POST['oper'] == "add") {
     $repetidos = repetidos($conexion, "nombre_categoria", strtoupper($_POST['nombre_categoria']), "categoria", "g", "", "");
     if ($repetidos == 'true') {

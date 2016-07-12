@@ -190,9 +190,7 @@ function inicio () {
     				$('#lbl_client_correo').val(data[5]);
     				$('#lbl_client_direccion').val(data[3]);
 			    },
-			    error: function (data) {
-			      
-		    	}	        
+			    error: function (data) { }	        
 		    });
 	    }	  
 	});

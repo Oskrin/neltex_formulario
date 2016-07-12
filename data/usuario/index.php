@@ -85,7 +85,7 @@
 																	<div class="col-xs-12">
 																		<div class="col-xs-12">																									
 																			<span class="profile-picture">
-																				<img id="avatar" name="avatar" class="editable img-responsive" alt="Empresa x" src="img/default.png" accept="image/*"/>
+																				<img id="avatar" name="avatar" class="editable img-responsive" alt="Empresa x" src="img/defaul.png" accept="image/*"/>
 																			</span>
 																		</div>																																														
 																	</div>
